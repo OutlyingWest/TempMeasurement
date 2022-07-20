@@ -383,7 +383,7 @@ void setDefaultTmpParameters(uint8_t lowTempLevel,
 	char message[MESSAGE_LENGTH] = {0};
 	if (isPrint)
 	{
-		sprintf(message, "Num  Addr Tlow('C) Thigh('C)\n");
+		sprintf(message, "Num  Addr Tlow('C) Thigh('C)\r\n");
 		usartTx((uint8_t*)message, MESSAGE_LENGTH);
 	}
 	// Filling tmpSensor structures
@@ -406,18 +406,18 @@ void setIndividualTmpParameters(uint8_t nTmpr,
 						                    uint8_t highTempLevel,
 						                    uint8_t isPrint)
 {
-	char message[MESSAGE_LENGTH] = {0};
+	char message[MESSAGE_LONG_LENGTH] = {0};
 	if (nTmpr < 0 || 31 < nTmpr)
 	{
-		sprintf(message, "Error: nTmpr = %d is out of range (0, 31)\n", nTmpr);
-		usartTx((uint8_t*)message, MESSAGE_LENGTH);
+		sprintf(message, "Error: nTmpr = %d is out of range (0, 31)\r\n", nTmpr);
+		usartTx((uint8_t*)message, MESSAGE_LONG_LENGTH);
 	}
 	else if ((lowTempLevel < +1 || highTempLevel < +1) ||
 			     (+125 < lowTempLevel || +125 < highTempLevel))
 	{
-		sprintf(message, "Error: nTmpr(%d) lowTempLevel = %d or highTempLevel = %d is out of range (+1, +125)\n",
+		sprintf(message, "Error: nTmpr(%d) lowTempLevel = %d or highTempLevel = %d is out of range (+1, +125)\r\n",
 			     nTmpr, lowTempLevel, highTempLevel);
-		usartTx((uint8_t*)message, MESSAGE_LENGTH);
+		usartTx((uint8_t*)message, MESSAGE_LONG_LENGTH);
 	}
 	else
 	{

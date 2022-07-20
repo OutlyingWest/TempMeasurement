@@ -8,7 +8,7 @@
 
 // Length of error message 
 #define MESSAGE_LENGTH 40
-
+#define MESSAGE_LONG_LENGTH 100
 // Addresses(7-bit) of tmp measurers
 #define TMP_1_ADDR 0x40 // 0x48
 
@@ -84,6 +84,15 @@ void alertTmpInitIT(void);
 void initAlertLimits(uint8_t lowLimit, uint8_t highLimit);
 void tugglePinTest(void);
 void handlerAlertIT(void);
+void showAllTmpParameters(void);
+void showIndividualTmpParameters(uint8_t nTmpr, uint8_t headerOn);
+void setDefaultTmpParameters(uint8_t lowTempLevel,
+                             uint8_t highTempLevel,
+                             uint8_t isPrint);
+void setIndividualTmpParameters(uint8_t nTmpr,
+						                    uint8_t lowTempLevel,
+						                    uint8_t highTempLevel,
+						                    uint8_t isPrint);
 
 // Get the temperature from tmp1075 and displays it on terminal 
 void getTemperature(void);
