@@ -27,7 +27,16 @@ Project File Date:  07/20/2022
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'tmp_measure'
-"signalGen\tmp_measure.axf" - 0 Error(s), 0 Warning(s).
+compiling tmp1075.c...
+..\Core\Src\tmp1075.c(410): warning:  #186-D: pointless comparison of unsigned integer with zero
+  	if (nTmpr < 0 || 31 < nTmpr)
+..\Core\Src\tmp1075.c: 1 warning, 0 errors
+compiling stm32f3xx_it.c...
+compiling main.c...
+linking...
+Program Size: Code=22980 RO-data=676 RW-data=132 ZI-data=2788  
+FromELF: creating hex file...
+"signalGen\tmp_measure.axf" - 0 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -51,7 +60,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE:5.5.0
       Include file:  CMSIS\Core\Include\tz_context.h
-Build Time Elapsed:  00:00:00
+Build Time Elapsed:  00:00:04
 </pre>
 </body>
 </html>

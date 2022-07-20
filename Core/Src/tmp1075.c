@@ -76,7 +76,6 @@ errorFlags errorFlag = {
 // Error messages
 static char errorAlert[MESSAGE_LENGTH] = "Error of transmitting - ";
 static char errorMessage[MESSAGE_LENGTH] = {0};
-// static char comleteMessage[MESSAGE_LENGTH] = "Transmitting is complete\r\n";
 static int errorCode = HAL_I2C_ERROR_NONE;
 
 void aReceiveI2C(I2C_HandleTypeDef hi, uint16_t tmpAddr, uint8_t *aRxBuffer, uint16_t sizeDataBuf, uint32_t timeout, const char *comleteMessage)
@@ -187,7 +186,7 @@ void alertTmpInitIT(void)
 {
 	uint8_t txBuf[2] = {0};    // Tx I2C Buffer 
 
-		
+
 	// Set the address of the configurate register.
 	txBuf[0] = CFGR_REG_ADDR;
 	
@@ -208,10 +207,7 @@ void alertTmpInitIT(void)
 // and filling the temperature structure feilds  by them
 float convTemp(uint8_t* rxTmpBufferI2C)
 {
-	/*uint8_t highByte = rxBufferI2C[0];
-	uint8_t lowByte = rxBufferI2C[1];*/
 	uint16_t tempUint16 = (rxTmpBufferI2C[0] << 4) + (rxTmpBufferI2C[1] >> 4);
-	//int32_t tempValInt32 = 0;
 	float tempFlt32 = 0;
 	float intPart = 0;
 	float fractPart = 0;
@@ -347,15 +343,18 @@ void handlerAlertIT()
 // UART -> virtual COM
 void showAllTmpParameters()
 {
-	printf("Num  Addr Tlow('C) Thigh('C)\n");
+	char message[MESSAGE_LENGTH] = "Num  Addr Tlow('C) Thigh('C)\r\n";
+	usartTx((uint8_t*)message, MESSAGE_LENGTH);
 
 	// Filling tmpSensor structures
 	for (uint8_t nTmp = 0; nTmp < NUMBER_OF_TMP_SENSORS; nTmp++)
 	{
-		printf("%3d %5x %8d %9d\n", nTmp,
-									tmpSensor[nTmp].tmpAddrWithAlign,
-									tmpSensor[nTmp].lowTempLevel,
-									tmpSensor[nTmp].highTempLevel);
+		sprintf(message, "%3d %5x %8d %9d\r\n",
+						nTmp,
+						tmpSensor[nTmp].tmpAddrWithAlign,
+						tmpSensor[nTmp].lowTempLevel,
+						tmpSensor[nTmp].highTempLevel);
+		usartTx((uint8_t*)message, MESSAGE_LENGTH);
 	}
 }
 
@@ -364,13 +363,16 @@ void showAllTmpParameters()
 // UART -> virtual COM
 void showIndividualTmpParameters(uint8_t nTmpr, uint8_t headerOn)
 {
+	char message[MESSAGE_LENGTH] = "Num  Addr Tlow('C) Thigh('C)\r\n";
 	if (headerOn)
-		printf("Num  Addr Tlow('C) Thigh('C)\n");
+		usartTx((uint8_t*)message, MESSAGE_LENGTH);
 
-	printf("%3d %5x %8d %9d\n", nTmpr,
-								tmpSensor[nTmpr].tmpAddrWithAlign,
-								tmpSensor[nTmpr].lowTempLevel,
-								tmpSensor[nTmpr].highTempLevel);
+		sprintf(message, "%3d %5x %8d %9d\r\n",
+						nTmpr,
+						tmpSensor[nTmpr].tmpAddrWithAlign,
+						tmpSensor[nTmpr].lowTempLevel,
+						tmpSensor[nTmpr].highTempLevel);
+		usartTx((uint8_t*)message, MESSAGE_LENGTH);
 }
 
 
@@ -378,9 +380,12 @@ void setDefaultTmpParameters(uint8_t lowTempLevel,
                              uint8_t highTempLevel,
                              uint8_t isPrint)
 {
+	char message[MESSAGE_LENGTH] = {0};
 	if (isPrint)
-		printf("Num  Addr Tlow('C) Thigh('C)\n");
-
+	{
+		sprintf(message, "Num  Addr Tlow('C) Thigh('C)\n");
+		usartTx((uint8_t*)message, MESSAGE_LENGTH);
+	}
 	// Filling tmpSensor structures
 	for (uint8_t nTmp = 0; nTmp < NUMBER_OF_TMP_SENSORS; nTmp++)
 	{
@@ -401,15 +406,18 @@ void setIndividualTmpParameters(uint8_t nTmpr,
 						                    uint8_t highTempLevel,
 						                    uint8_t isPrint)
 {
+	char message[MESSAGE_LENGTH] = {0};
 	if (nTmpr < 0 || 31 < nTmpr)
 	{
-		printf("Error: nTmpr = %d is out of range (0, 31)\n", nTmpr);
+		sprintf(message, "Error: nTmpr = %d is out of range (0, 31)\n", nTmpr);
+		usartTx((uint8_t*)message, MESSAGE_LENGTH);
 	}
 	else if ((lowTempLevel < +1 || highTempLevel < +1) ||
 			     (+125 < lowTempLevel || +125 < highTempLevel))
 	{
-		printf("Error: nTmpr(%d) lowTempLevel = %d or highTempLevel = %d is out of range (+1, +125)\n",
+		sprintf(message, "Error: nTmpr(%d) lowTempLevel = %d or highTempLevel = %d is out of range (+1, +125)\n",
 			     nTmpr, lowTempLevel, highTempLevel);
+		usartTx((uint8_t*)message, MESSAGE_LENGTH);
 	}
 	else
 	{
