@@ -42,6 +42,18 @@ const uint16_t alertResponseAddrWithAlign = ALERT_RESPONSE_ADDR << 1;
 uint8_t getOutPutFl = 0;     // Must be set for each trying read data from tmp1075
 
 
+// Structure of data for each tmps
+typedef struct
+{
+	uint16_t tmpAddrWithAlign;
+	uint8_t lowTempLevel;
+	uint8_t highTempLevel;
+}TempSensor;
+
+// Definition of structure of data for each tmps
+TempSensor tmpSensor[NUMBER_OF_TMP_SENSORS] = { 0 };
+
+// Structure of Errors in char format
 typedef struct 
 {
 	char AF[5];
@@ -51,7 +63,7 @@ typedef struct
 	char Other[8];
 }errorFlags;
 
-
+// Definition of structure of Errors
 errorFlags errorFlag = {
 															"AF\r\n", 
 															"BERR\r\n",
@@ -183,16 +195,19 @@ void alertTmpInitIT(void)
 	txBuf[1] |= SET_ALERT_IT_MOD;
 	
 	const char message[] = "IT init completed.\r\n";
-	aTransmitI2C(hi2c1, (uint16_t)tmpAddrWithAlign, (uint8_t*)txBuf, (uint16_t)SIZE_TMP_TX_DATA_BUF, TRANSMIT_TIMEOUT, message);
+	aTransmitI2C(hi2c1,
+	             (uint16_t)tmpAddrWithAlign,
+	             (uint8_t*)txBuf,
+	             (uint16_t)SIZE_TMP_TX_DATA_BUF,
+	             TRANSMIT_TIMEOUT,
+	             message);
 }
 
 
-
+// Function does the conversion of received data from tmp1075 to a decimal form
+// and filling the temperature structure feilds  by them
 float convTemp(uint8_t* rxTmpBufferI2C)
 {
-	// Function does the conversion of received data from tmp1075 to a decimal form
-	// and filling the temperature structure feilds  by them
-
 	/*uint8_t highByte = rxBufferI2C[0];
 	uint8_t lowByte = rxBufferI2C[1];*/
 	uint16_t tempUint16 = (rxTmpBufferI2C[0] << 4) + (rxTmpBufferI2C[1] >> 4);
@@ -243,7 +258,10 @@ void getTemperature()
 			ptrRxBufferI2C = rxTmpBufferI2C;
 			ptrTxBufferI2C = txTmpBufferI2C;
 			// Transmit the reqest for receive temperature
-			HAL_I2C_Master_Transmit_IT(&hi2c1, (uint16_t)tmpAddrWithAlign, (uint8_t*)ptrTxBufferI2C, (uint16_t)SIZE_TMP_TX_DATA_BUF);
+			HAL_I2C_Master_Transmit_IT(&hi2c1,
+			                           (uint16_t)tmpAddrWithAlign,
+			                           (uint8_t*)ptrTxBufferI2C,
+			                           (uint16_t)SIZE_TMP_TX_DATA_BUF);
 
 			// Perform the conversion and filling the temperature structure feilds
 			// and display on terminal
@@ -287,7 +305,11 @@ void handlerAlertIT()
 		// TODO: add the init for more tmps and solve the problem with current tmp address - 0. But other works!!!
 		 HAL_Delay(1000);
 		//HAL_I2C_Master_Receive_IT(&hi2c1, (uint16_t)alertResponseAddrWithAlign, (uint8_t*)rxAlertAddrI2C, (uint16_t)1);
-		HAL_I2C_Master_Receive(&hi2c1, (uint16_t)alertResponseAddrWithAlign, (uint8_t*)rxAlertAddrI2C, (uint16_t)1, 1000);
+		HAL_I2C_Master_Receive(&hi2c1,
+		                       (uint16_t)alertResponseAddrWithAlign,
+		                       (uint8_t*)rxAlertAddrI2C,
+		                       (uint16_t)1, 
+		                       1000);
 
 		if (!firstStartFl)
 		{
@@ -321,6 +343,83 @@ void handlerAlertIT()
 	}
 }
 
+// This function show parameters of all tmps in a console on the PC connected by
+// UART -> virtual COM
+void showAllTmpParameters()
+{
+	printf("Num  Addr Tlow('C) Thigh('C)\n");
+
+	// Filling tmpSensor structures
+	for (uint8_t nTmp = 0; nTmp < NUMBER_OF_TMP_SENSORS; nTmp++)
+	{
+		printf("%3d %5x %8d %9d\n", nTmp,
+									tmpSensor[nTmp].tmpAddrWithAlign,
+									tmpSensor[nTmp].lowTempLevel,
+									tmpSensor[nTmp].highTempLevel);
+	}
+}
+
+
+// This function show individual parameters of tmp in a console on the PC connected by
+// UART -> virtual COM
+void showIndividualTmpParameters(uint8_t nTmpr, uint8_t headerOn)
+{
+	if (headerOn)
+		printf("Num  Addr Tlow('C) Thigh('C)\n");
+
+	printf("%3d %5x %8d %9d\n", nTmpr,
+								tmpSensor[nTmpr].tmpAddrWithAlign,
+								tmpSensor[nTmpr].lowTempLevel,
+								tmpSensor[nTmpr].highTempLevel);
+}
+
+
+void setDefaultTmpParameters(uint8_t lowTempLevel,
+                             uint8_t highTempLevel,
+                             uint8_t isPrint)
+{
+	if (isPrint)
+		printf("Num  Addr Tlow('C) Thigh('C)\n");
+
+	// Filling tmpSensor structures
+	for (uint8_t nTmp = 0; nTmp < NUMBER_OF_TMP_SENSORS; nTmp++)
+	{
+		tmpSensor[nTmp].tmpAddrWithAlign = ((1 << 6) + nTmp) << 1;
+		tmpSensor[nTmp].lowTempLevel = DEFAULT_TLOW;
+		tmpSensor[nTmp].highTempLevel = DEFAULT_THIGH;
+
+		if (isPrint)
+			showIndividualTmpParameters(nTmp, OFF);
+	}
+}
+
+
+// This function set individual parameters of tmp and
+// may show it in a console on the PC connected by UART -> virtual COM
+void setIndividualTmpParameters(uint8_t nTmpr,
+						                    uint8_t lowTempLevel,
+						                    uint8_t highTempLevel,
+						                    uint8_t isPrint)
+{
+	if (nTmpr < 0 || 31 < nTmpr)
+	{
+		printf("Error: nTmpr = %d is out of range (0, 31)\n", nTmpr);
+	}
+	else if ((lowTempLevel < +1 || highTempLevel < +1) ||
+			     (+125 < lowTempLevel || +125 < highTempLevel))
+	{
+		printf("Error: nTmpr(%d) lowTempLevel = %d or highTempLevel = %d is out of range (+1, +125)\n",
+			     nTmpr, lowTempLevel, highTempLevel);
+	}
+	else
+	{
+		tmpSensor[nTmpr].lowTempLevel = lowTempLevel;
+		tmpSensor[nTmpr].highTempLevel = highTempLevel;
+	}
+	
+	if (isPrint)
+		showIndividualTmpParameters(nTmpr, ON);
+}
 
 
 // After transmitting of address tmp1075 and address of register for reading in case, 
@@ -330,7 +429,10 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 	if (getOutPutFl)
 	{
 		getOutPutFl = 0;
-		HAL_I2C_Master_Receive_IT(hi2c, (uint16_t)tmpAddrWithAlign, (uint8_t*)ptrRxBufferI2C, (uint16_t)SIZE_TMP_RX_DATA_BUF);
+		HAL_I2C_Master_Receive_IT(hi2c,
+													    (uint16_t)tmpAddrWithAlign, 
+		                          (uint8_t*)ptrRxBufferI2C,
+		                          (uint16_t)SIZE_TMP_RX_DATA_BUF);
 	}
 }
 

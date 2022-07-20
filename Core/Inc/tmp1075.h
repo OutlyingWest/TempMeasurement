@@ -77,14 +77,6 @@ extern uint8_t highTempLevel;
 // Low temperature level. Alert interrupt will generated if temperature cross this level from the top side.
 extern uint8_t lowTempLevel;
 
-// Structure of data for each tmps
-typedef struct
-{
-	uint16_t tmpAddrWithAlign;
-	uint8_t lowTempLevel;
-	uint8_t highTempLevel;
-}TempSensor;
-
 // Function prototypes
 void aReceiveI2C(I2C_HandleTypeDef hi, uint16_t tmpAddr, uint8_t *aTxBuffer, uint16_t sizeDataBuf, uint32_t timeout, const char *comleteMessage);
 void aTransmitI2C(I2C_HandleTypeDef hi, uint16_t tmpAddr, uint8_t *aTxBuffer, uint16_t sizeDataBuf, uint32_t timeout, const char *comleteMessage);
