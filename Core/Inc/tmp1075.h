@@ -80,13 +80,14 @@ extern uint8_t lowTempLevel;
 // Function prototypes
 void aReceiveI2C(I2C_HandleTypeDef hi, uint16_t tmpAddr, uint8_t *aTxBuffer, uint16_t sizeDataBuf, uint32_t timeout, const char *comleteMessage);
 void aTransmitI2C(I2C_HandleTypeDef hi, uint16_t tmpAddr, uint8_t *aTxBuffer, uint16_t sizeDataBuf, uint32_t timeout, const char *comleteMessage);
-void alertTmpInitIT(void);
-void initAlertLimits(uint8_t lowLimit, uint8_t highLimit);
+void initIndividualTmpAlertIT(uint8_t nTmpr);
+void initIndividualTmpAlertLimits(uint8_t nTmpr);
+void initAllTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff);
 void tugglePinTest(void);
 void handlerAlertIT(void);
 void showAllTmpParameters(void);
 void showIndividualTmpParameters(uint8_t nTmpr, uint8_t headerOn);
-void setDefaultTmpParameters(uint8_t lowTempLevel,
+void setAllDefaultTmpParameters(uint8_t lowTempLevel,
                              uint8_t highTempLevel,
                              uint8_t isPrint);
 void setIndividualTmpParameters(uint8_t nTmpr,

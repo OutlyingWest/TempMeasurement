@@ -155,7 +155,7 @@ void aTransmitI2C(I2C_HandleTypeDef hi, uint16_t tmpAddr, uint8_t *aTxBuffer, ui
 }
 
 
-void initAlertLimits(uint8_t lowLimit, uint8_t highLimit)
+void initIndividualTmpAlertLimits(uint8_t nTmpr)
 {
 	uint8_t txBuf[2] = {0};    // Tx I2C Buffer 
 	char messageL[MESSAGE_LENGTH] = {0};
@@ -165,27 +165,27 @@ void initAlertLimits(uint8_t lowLimit, uint8_t highLimit)
 	txBuf[0] = LLIM_REG_ADDR;
 	
 	// Set low limit level
-	txBuf[1] = lowLimit;
+	txBuf[1] = tmpSensor[nTmpr].lowTempLevel;
 	
 
-	sprintf(messageL, "Low limit set (%d'C).\r\n", lowLimit); 
-	aTransmitI2C(hi2c1, (uint16_t)tmpAddrWithAlign, (uint8_t*)txBuf, (uint16_t)SIZE_TMP_TX_DATA_BUF, TRANSMIT_TIMEOUT, messageL);
+	sprintf(messageL, "nTmpr(%d) Low limit set (%d'C).\r\n", nTmpr, tmpSensor[nTmpr].lowTempLevel); 
+	aTransmitI2C(hi2c1, (uint16_t)tmpSensor[nTmpr].tmpAddrWithAlign, (uint8_t*)txBuf, (uint16_t)SIZE_TMP_TX_DATA_BUF, TRANSMIT_TIMEOUT, messageL);
 	
 	//setRegAddr((uint8_t)HLIM_REG_ADDR);
 	txBuf[0] = HLIM_REG_ADDR;
 	
 	// Set high limit level
-	txBuf[1] = highLimit;
+	txBuf[1] = tmpSensor[nTmpr].highTempLevel;
 	
-	sprintf(messageH, "High limit set (%d'C).\r\n\n", highLimit);
-	aTransmitI2C(hi2c1, (uint16_t)tmpAddrWithAlign, (uint8_t*)txBuf, (uint16_t)SIZE_TMP_TX_DATA_BUF, TRANSMIT_TIMEOUT, messageH);
+	sprintf(messageH, "nTmpr(%d) High limit set (%d'C).\r\n\n", nTmpr, tmpSensor[nTmpr].highTempLevel);
+	aTransmitI2C(hi2c1, (uint16_t)tmpSensor[nTmpr].tmpAddrWithAlign, (uint8_t*)txBuf, (uint16_t)SIZE_TMP_TX_DATA_BUF, TRANSMIT_TIMEOUT, messageH);
 }
 
 
-void alertTmpInitIT(void)
+void initIndividualTmpAlertIT(uint8_t nTmpr)
 {
+	char message[MESSAGE_LENGTH] = {0};
 	uint8_t txBuf[2] = {0};    // Tx I2C Buffer 
-
 
 	// Set the address of the configurate register.
 	txBuf[0] = CFGR_REG_ADDR;
@@ -193,9 +193,9 @@ void alertTmpInitIT(void)
 	// Set alert in interrupt mod
 	txBuf[1] |= SET_ALERT_IT_MOD;
 	
-	const char message[] = "IT init completed.\r\n";
+	sprintf(message, "nTmpr(%d) IT init completed.\r\n", nTmpr);
 	aTransmitI2C(hi2c1,
-	             (uint16_t)tmpAddrWithAlign,
+	             (uint16_t)tmpSensor[nTmpr].tmpAddrWithAlign,
 	             (uint8_t*)txBuf,
 	             (uint16_t)SIZE_TMP_TX_DATA_BUF,
 	             TRANSMIT_TIMEOUT,
@@ -376,9 +376,9 @@ void showIndividualTmpParameters(uint8_t nTmpr, uint8_t headerOn)
 }
 
 
-void setDefaultTmpParameters(uint8_t lowTempLevel,
-                             uint8_t highTempLevel,
-                             uint8_t isPrint)
+void setAllDefaultTmpParameters(uint8_t lowTempLevel,
+                                uint8_t highTempLevel,
+                                uint8_t isPrint)
 {
 	char message[MESSAGE_LENGTH] = {0};
 	if (isPrint)
@@ -427,6 +427,18 @@ void setIndividualTmpParameters(uint8_t nTmpr,
 	
 	if (isPrint)
 		showIndividualTmpParameters(nTmpr, ON);
+}
+
+
+void initAllTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff)
+{
+	uint8_t nTmpr = 0;
+	for (uint8_t conNum = 0; conNum < sizeTmpNumsBuff; conNum++)
+	{
+		nTmpr = connectedTmpNums[conNum];
+		initIndividualTmpAlertIT(nTmpr);
+		initIndividualTmpAlertLimits(nTmpr);
+	}
 }
 
 

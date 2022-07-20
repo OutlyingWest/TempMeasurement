@@ -145,15 +145,9 @@ int main(void)
 	// TODO: Test the priorities
 	//NVIC_SetPriority();
 	
-	
-	// Init Alerts in tmp1075
-	alertTmpInitIT();
-	initAlertLimits((uint8_t)lowTempLevel, (uint8_t)highTempLevel);
-	
-	
 	// TESTING: 
 	// fill the tmp structs 
-	setDefaultTmpParameters(DEFAULT_TLOW, DEFAULT_THIGH, ON);
+	setAllDefaultTmpParameters(DEFAULT_TLOW, DEFAULT_THIGH, ON);
 	setIndividualTmpParameters(4, 0, 29, OFF);
 	setIndividualTmpParameters(10, 100, 126, OFF);
 	setIndividualTmpParameters(11, 100, 122, ON);
@@ -161,6 +155,13 @@ int main(void)
 	
 	// Transmit param through uart
 	// ~TESTING: 
+	
+	// Init Alerts in tmp1075
+	uint8_t connectedTmpNums[3] = {0, 1, 8};
+	initAllTmps(connectedTmpNums, 3);
+	
+	
+
 	
   /* USER CODE END 2 */
 
