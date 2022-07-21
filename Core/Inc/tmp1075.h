@@ -3,8 +3,13 @@
 
 // Defines
 
-// Maximum transmitting wait time in blocking mode
-#define TRANSMIT_TIMEOUT 700
+// Maximum transmitting wait time for HAL I2C functions in blocking mode
+// in initialization time
+#define INIT_TIMEOUT 700
+
+// Maximum wait time for HAL I2C functions in blocking mode 
+// on the runtime 
+#define RUNTIME_TIMEOUT 100
 
 // Length of error message 
 #define MESSAGE_LENGTH 40
@@ -41,13 +46,15 @@
 #define SET_ALERT_IT_MOD 0x02
 
 // Default minimum and maximum temperature edges for alerts
-#define DEFAULT_TLOW 28
-#define DEFAULT_THIGH 28
+#define DEFAULT_TLOW 26
+#define DEFAULT_THIGH 26
 
 #define NUMBER_OF_TMP_SENSORS 32
 
+
 #define ON 1
 #define OFF 0
+#define NO_PRINT 0
 
 // Externs
 
@@ -82,7 +89,7 @@ void aReceiveI2C(I2C_HandleTypeDef hi, uint16_t tmpAddr, uint8_t *aTxBuffer, uin
 void aTransmitI2C(I2C_HandleTypeDef hi, uint16_t tmpAddr, uint8_t *aTxBuffer, uint16_t sizeDataBuf, uint32_t timeout, const char *comleteMessage);
 void initIndividualTmpAlertIT(uint8_t nTmpr);
 void initIndividualTmpAlertLimits(uint8_t nTmpr);
-void initAllTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff);
+void initSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff);
 void tugglePinTest(void);
 void handlerAlertIT(void);
 void showAllTmpParameters(void);

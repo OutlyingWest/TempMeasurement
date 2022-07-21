@@ -141,10 +141,6 @@ int main(void)
   GPIO_InitStruct.Alternate = LL_GPIO_AF_4;
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 	
-	// Set error interrupts priority
-	// TODO: Test the priorities
-	//NVIC_SetPriority();
-	
 	// TESTING: 
 	// fill the tmp structs 
 	setAllDefaultTmpParameters(DEFAULT_TLOW, DEFAULT_THIGH, ON);
@@ -158,11 +154,8 @@ int main(void)
 	
 	// Init Alerts in tmp1075
 	uint8_t connectedTmpNums[3] = {0, 1, 8};
-	initAllTmps(connectedTmpNums, 3);
-	
-	
+	initSelectedTmps(connectedTmpNums, 3);
 
-	
   /* USER CODE END 2 */
 
   /* Infinite loop */
