@@ -291,7 +291,6 @@ void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 		NVIC_DisableIRQ(I2C1_EV_IRQn);
 		
 		char message[MESSAGE_LONG_LENGTH] = {0};
-		static uint8_t eventFl = 0;
 		static uint8_t firstStartFl = 1; 
 		uint8_t rxAlertAddr[1] = {0};
 		uint8_t nTmpr = 0;
@@ -310,14 +309,11 @@ void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 		{
 				nTmpr = tmpNums[seqNum];
 				if (tmpSensor[nTmpr].tmpAddrWithAlign == (rxAlertAddr[0] & 0xFE))
-				{
 					break;
-				}
 		}
 		
 		if (!firstStartFl)
 		{
-			eventFl ^= 1;
 			sprintf(message, "\r\n\nAlert addr: %x\r\n", rxAlertAddr[0]);
 			usartTx((uint8_t*)message, MESSAGE_LENGTH);
 		}
