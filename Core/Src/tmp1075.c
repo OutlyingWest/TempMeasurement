@@ -147,7 +147,6 @@ void initIndividualTmpAlertLimits(uint8_t nTmpr)
 	char messageL[MESSAGE_LENGTH] = {0};
 	char messageH[MESSAGE_LENGTH] = {0};
 
-	//setRegAddr((uint8_t)LLIM_REG_ADDR);
 	txBuf[0] = LLIM_REG_ADDR;
 	
 	// Set low limit level
@@ -178,6 +177,27 @@ void initIndividualTmpAlertIT(uint8_t nTmpr)
 	
 	// Set alert in interrupt mod
 	txBuf[1] |= SET_ALERT_IT_MOD;
+	
+	sprintf(message, "nTmpr(%d) IT init completed.\r\n", nTmpr);
+	aTransmitI2C(hi2c1,
+	             (uint16_t)tmpSensor[nTmpr].tmpAddrWithAlign,
+	             (uint8_t*)txBuf,
+	             (uint16_t)SIZE_TMP_TX_DATA_BUF,
+	             INIT_TIMEOUT,
+	             message);
+}
+
+// TODO: Finish the fault init func
+void initIndividualTmpFaults(uint8_t nTmpr)
+{
+	char message[MESSAGE_LENGTH] = {0};
+	uint8_t txBuf[2] = {0};    // Tx I2C Buffer 
+
+	// Set the address of the configurate register.
+	txBuf[0] = CFGR_REG_ADDR;
+	
+	// Set alert in interrupt mod
+	txBuf[1] |= SET_NUM_FAULTS;
 	
 	sprintf(message, "nTmpr(%d) IT init completed.\r\n", nTmpr);
 	aTransmitI2C(hi2c1,

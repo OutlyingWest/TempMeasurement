@@ -44,6 +44,7 @@
 
 // Settings for CFGR register
 #define SET_ALERT_IT_MOD 0x02
+#define SET_NUM_FAULTS 0x10  // 3 faults
 
 // Default minimum and maximum temperature edges for alerts
 #define DEFAULT_TLOW 26
