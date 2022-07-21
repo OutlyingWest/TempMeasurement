@@ -17,6 +17,10 @@ uint8_t rxTmpBufferI2C[SIZE_TMP_RX_DATA_BUF] = {0};
 // Tx I2C Buffer 
 uint8_t txTmpBufferI2C[SIZE_TMP_TX_DATA_BUF] = {0};
 
+// Buffer of connected tmps
+const uint8_t kTmpBufSize = 3;
+uint8_t connectedTmpNums[kTmpBufSize] = {0, 1, 8};
+
 // Address which sends to over tmps if Alert line adge is low with align
 const uint16_t alertResponseAddrWithAlign = ALERT_RESPONSE_ADDR << 1;
 
@@ -278,29 +282,47 @@ void getSelectedTemperatures(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 }
 
 
-void handlerAlertIT()
+void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 {	
 	//  If Alert interrupt is occured, handler is unblocked
 	if (interruptAlertOccuredFl)
 	{
 		NVIC_DisableIRQ(I2C1_ER_IRQn);
 		NVIC_DisableIRQ(I2C1_EV_IRQn);
+		
 		char message[MESSAGE_LENGTH] = {0};
 		static uint8_t eventFl = 0;
 		static uint8_t firstStartFl = 1; 
-		uint8_t rxAlertAddrI2C[1] = {0};
+		uint8_t rxAlertAddr[1] = {0};
+		uint8_t nTmpr = 0;
+		uint8_t alertLevelCrossed = 0;
 		
-		//HAL_Delay(1000);
 		HAL_I2C_Master_Receive(&hi2c1,
 		                       (uint16_t)alertResponseAddrWithAlign,
-		                       (uint8_t*)rxAlertAddrI2C,
+		                       (uint8_t*)rxAlertAddr,
 		                       (uint16_t)1, 
-		                       1000);
-
+		                       RUNTIME_TIMEOUT);
+		
+		// 0 if high level crossed, else - 1
+		alertLevelCrossed = rxAlertAddr[0] & 0x01;
+		
+		for (uint8_t seqNum = 0; seqNum < sizeTmpNumsBuff; seqNum++)
+		{
+				nTmpr = tmpNums[seqNum];
+				if (tmpSensor[nTmpr].tmpAddrWithAlign == (rxAlertAddr[0] & 0xFE))
+				{
+					break;
+				}
+				else
+				{
+					
+				}
+		}
+		
 		if (!firstStartFl)
 		{
 			eventFl ^= 1;
-			sprintf(message, "\r\n\nAlert addr: %x\r\n", rxAlertAddrI2C[0]);
+			sprintf(message, "\r\n\nAlert addr: %x\r\n", rxAlertAddr[0]);
 			usartTx((uint8_t*)message, MESSAGE_LENGTH);
 		}
 		
@@ -308,15 +330,15 @@ void handlerAlertIT()
 		{
 			firstStartFl = 0; 
 		}
-		else if (eventFl)
+		else if (!alertLevelCrossed)
 		{
-			sprintf(message, "Max. temperature(%d'C) exceeded\r\n\n", tmpSensor[0].highTempLevel);
-			usartTx((uint8_t*)message, MESSAGE_LENGTH);
+			sprintf(message, "Max. temp(%d'C) exceeded Tmp(%d)\r\n\n", tmpSensor[nTmpr].highTempLevel, nTmpr);
+			usartTx((uint8_t*)message, MESSAGE_LONG_LENGTH);
 		}
-		else if(!eventFl)
+		else if(alertLevelCrossed)
 		{
-			sprintf(message, "Temperature(<%d) - returned to normal\r\n\n", tmpSensor[0].lowTempLevel);
-			usartTx((uint8_t*)message, MESSAGE_LENGTH);
+			sprintf(message, "Temp(<%d) - returned to normal Tmp(%d)\r\n\n", tmpSensor[nTmpr].lowTempLevel, nTmpr);
+			usartTx((uint8_t*)message, MESSAGE_LONG_LENGTH);
 		}
 		
 		tugglePinTest();

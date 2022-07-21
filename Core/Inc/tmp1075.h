@@ -69,6 +69,11 @@ extern uint8_t rxBufferI2C[];
 // Tx I2C Buffer 
 extern uint8_t txBufferI2C[];
 
+// Size of buffer of connected tmps
+extern const uint8_t kTmpBufSize;
+
+// Buffer of connected tmps
+extern uint8_t connectedTmpNums[];
 
 // Address which sends to over tmps if Alert line adge is low
 extern const uint16_t alertResponseAddrWithAlign;
@@ -80,7 +85,7 @@ void initIndividualTmpAlertIT(uint8_t nTmpr);
 void initIndividualTmpAlertLimits(uint8_t nTmpr);
 void initAlertSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff);
 void tugglePinTest(void);
-void handlerAlertIT(void);
+void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff);
 void showAllTmpParameters(void);
 void showIndividualTmpParameters(uint8_t nTmpr, uint8_t headerOn);
 void setAllDefaultTmpParameters(uint8_t lowTempLevel,
