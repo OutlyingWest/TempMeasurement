@@ -152,9 +152,11 @@ int main(void)
 	// Transmit param through uart
 	// ~TESTING: 
 	
+	const uint8_t kTmpBufSize = 3;
+	uint8_t connectedTmpNums[kTmpBufSize] = {0, 1, 8};
+	
 	// Init Alerts in tmp1075
-	uint8_t connectedTmpNums[3] = {0, 1, 8};
-	initSelectedTmps(connectedTmpNums, 3);
+	initAlertSelectedTmps(connectedTmpNums, kTmpBufSize);
 
   /* USER CODE END 2 */
 
@@ -162,7 +164,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		getTemperature();
+		getSelectedTemperatures(connectedTmpNums, kTmpBufSize);
 		handlerAlertIT();
 
     /* USER CODE END WHILE */

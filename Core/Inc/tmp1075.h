@@ -69,27 +69,16 @@ extern uint8_t rxBufferI2C[];
 // Tx I2C Buffer 
 extern uint8_t txBufferI2C[];
 
-//// Alert address Rx Buffer 
-//extern uint8_t rxAlertAddrI2C[];
-
-// Addresses(7-bit) of tmp measurers with align to the left on 1 bit
-extern const uint16_t tmpAddrWithAlign;
 
 // Address which sends to over tmps if Alert line adge is low
 extern const uint16_t alertResponseAddrWithAlign;
-
-// High temperature level. Alert interrupt will generated if temperature exceed this level.
-extern uint8_t highTempLevel;
-
-// Low temperature level. Alert interrupt will generated if temperature cross this level from the top side.
-extern uint8_t lowTempLevel;
 
 // Function prototypes
 void aReceiveI2C(I2C_HandleTypeDef hi, uint16_t tmpAddr, uint8_t *aTxBuffer, uint16_t sizeDataBuf, uint32_t timeout, const char *comleteMessage);
 void aTransmitI2C(I2C_HandleTypeDef hi, uint16_t tmpAddr, uint8_t *aTxBuffer, uint16_t sizeDataBuf, uint32_t timeout, const char *comleteMessage);
 void initIndividualTmpAlertIT(uint8_t nTmpr);
 void initIndividualTmpAlertLimits(uint8_t nTmpr);
-void initSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff);
+void initAlertSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff);
 void tugglePinTest(void);
 void handlerAlertIT(void);
 void showAllTmpParameters(void);
@@ -103,4 +92,4 @@ void setIndividualTmpParameters(uint8_t nTmpr,
 						                    uint8_t isPrint);
 
 // Get the temperature from tmp1075 and displays it on terminal 
-void getTemperature(void);
+void getSelectedTemperatures(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff);

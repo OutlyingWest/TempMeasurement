@@ -11,29 +11,11 @@ uint8_t *ptrRxBufferI2C;
 // Ptr Tx I2C Buffer 
 uint8_t *ptrTxBufferI2C;
 
-// ID Rx buffer
-uint8_t rxBufferID[2] = {0};
-
-// ID Tx Buffer 
-uint8_t txBufferID[1] = {0};
-
-// Alert address Rx Buffer 
-uint8_t rxAlertAddrI2C[1] = {0};
-
 // Rx I2C Buffer 
 uint8_t rxTmpBufferI2C[SIZE_TMP_RX_DATA_BUF] = {0};
 
 // Tx I2C Buffer 
 uint8_t txTmpBufferI2C[SIZE_TMP_TX_DATA_BUF] = {0};
-
-// High temperature level. Alert interrupt will generated if temperature exceed this level.
-uint8_t highTempLevel = 28;
-
-// Low temperature level. Alert interrupt will generated if temperature cross this level from the top side.
-uint8_t lowTempLevel = 28;
-	
-// Addresses(7-bit) of tmp measurers with align to the left on 1 bit
-const uint16_t tmpAddrWithAlign = TMP_1_ADDR << 1;
 
 // Address which sends to over tmps if Alert line adge is low with align
 const uint16_t alertResponseAddrWithAlign = ALERT_RESPONSE_ADDR << 1;
@@ -236,13 +218,38 @@ float convTemp(uint8_t* rxTmpBufferI2C)
 }
 
 
-void getIndividualTemperature()
+float getIndividualTemperature(uint8_t nTmpr)
 {
+	uint8_t rxTmpBuffer[2] = {0};	
+	uint8_t txTmpBuffer[1] = {0};	
+	const char kCpltNoPrint[] = "";
 	
+
+	// Set the address of the temperature register. Must be set in first transmitted byte (in txBufferI2C[0])
+	txTmpBuffer[0] = TEMP_REG_ADDR;
+	
+	// Transmit the reqest for receive temperature
+	aTransmitI2C(hi2c1,
+							 (uint16_t)tmpSensor[nTmpr].tmpAddrWithAlign, 
+							 (uint8_t*)txTmpBuffer,
+							 (uint16_t)SIZE_TMP_RX_DATA_BUF,
+							 RUNTIME_TIMEOUT,
+							 kCpltNoPrint);
+	
+	// Receive of temperature
+	aReceiveI2C(hi2c1,
+						  (uint16_t)tmpSensor[nTmpr].tmpAddrWithAlign, 
+						  (uint8_t*)rxTmpBuffer,
+						  (uint16_t)SIZE_TMP_RX_DATA_BUF,
+						  RUNTIME_TIMEOUT,
+						  kCpltNoPrint);
+	
+	// Perform the conversion from bytes to float
+	return convTemp(rxTmpBuffer);
 }
 
 
-void getTemperature()
+void getSelectedTemperatures(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 {	
 	// If Alert interrupt is occured, temperature receiving is blocked 
 	if (!interruptAlertOccuredFl)
@@ -250,36 +257,22 @@ void getTemperature()
 		if ((tim6Tick - tim6LastTime) > GET_TEMP_TIME)
 		{
 			tim6LastTime = tim6Tick;
-			uint8_t rxTmpBuffer[2] = {0};	
-			uint8_t txTmpBuffer[1] = {0};	
 			
-			const char kNoPrint[] = "";
-			
+			uint8_t nTmpr = 0;
+			float temperature = 0;
 			char tempMessage[MESSAGE_LENGTH] = { 0 };
+			char endMessage[2] = "\r";
 
-			// Set the address of the temperature register. Must be set in first transmitted byte (in txBufferI2C[0])
-			txTmpBuffer[0] = TEMP_REG_ADDR;
-			
-			// Transmit the reqest for receive temperature
-			aTransmitI2C(hi2c1,
-									(uint16_t)tmpAddrWithAlign, 
-									(uint8_t*)txTmpBuffer,
-									(uint16_t)SIZE_TMP_RX_DATA_BUF,
-									RUNTIME_TIMEOUT,
-									kNoPrint);
-			
-			// Receive of temperature
-			aReceiveI2C(hi2c1,
-								 (uint16_t)tmpAddrWithAlign, 
-								 (uint8_t*)rxTmpBuffer,
-								 (uint16_t)SIZE_TMP_RX_DATA_BUF,
-								 RUNTIME_TIMEOUT,
-								 kNoPrint);
-
-			// Perform the conversion and filling the temperature structure feilds
-			// and display on terminal
-			sprintf(tempMessage, "Temp: %.2f'C\r", convTemp(rxTmpBuffer));
-			usartTx((uint8_t*)tempMessage, MESSAGE_LENGTH);
+			for (uint8_t seqNum = 0; seqNum < sizeTmpNumsBuff; seqNum++)
+			{
+				nTmpr = tmpNums[seqNum];
+				temperature = getIndividualTemperature(nTmpr);
+				
+				// Display on terminal
+				sprintf(tempMessage, "Tmp(%d) = %.2f'C | ", nTmpr, temperature);
+				usartTx((uint8_t*)tempMessage, MESSAGE_LENGTH);
+			}
+			usartTx((uint8_t*)endMessage, MESSAGE_LENGTH);
 		}
 	}
 }
@@ -295,7 +288,7 @@ void handlerAlertIT()
 		char message[MESSAGE_LENGTH] = {0};
 		static uint8_t eventFl = 0;
 		static uint8_t firstStartFl = 1; 
-		rxAlertAddrI2C[0] = 0;
+		uint8_t rxAlertAddrI2C[1] = {0};
 		
 		//HAL_Delay(1000);
 		HAL_I2C_Master_Receive(&hi2c1,
@@ -317,12 +310,12 @@ void handlerAlertIT()
 		}
 		else if (eventFl)
 		{
-			sprintf(message, "Max. temperature(%d'C) exceeded\r\n\n", highTempLevel);
+			sprintf(message, "Max. temperature(%d'C) exceeded\r\n\n", tmpSensor[0].highTempLevel);
 			usartTx((uint8_t*)message, MESSAGE_LENGTH);
 		}
 		else if(!eventFl)
 		{
-			sprintf(message, "Temperature(<%d) - returned to normal\r\n\n", lowTempLevel);
+			sprintf(message, "Temperature(<%d) - returned to normal\r\n\n", tmpSensor[0].lowTempLevel);
 			usartTx((uint8_t*)message, MESSAGE_LENGTH);
 		}
 		
@@ -428,7 +421,7 @@ void setIndividualTmpParameters(uint8_t nTmpr,
 }
 
 
-void initSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff)
+void initAlertSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff)
 {
 	uint8_t nTmpr = 0;
 	for (uint8_t conNum = 0; conNum < sizeTmpNumsBuff; conNum++)
@@ -448,7 +441,7 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 	{
 		getOutPutFl = 0;
 		HAL_I2C_Master_Receive_IT(hi2c,
-													    (uint16_t)tmpAddrWithAlign, 
+													    (uint16_t)tmpSensor[0].tmpAddrWithAlign, 
 		                          (uint8_t*)ptrRxBufferI2C,
 		                          (uint16_t)SIZE_TMP_RX_DATA_BUF);
 	}
