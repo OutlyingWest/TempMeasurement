@@ -290,7 +290,7 @@ void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 		NVIC_DisableIRQ(I2C1_ER_IRQn);
 		NVIC_DisableIRQ(I2C1_EV_IRQn);
 		
-		char message[MESSAGE_LENGTH] = {0};
+		char message[MESSAGE_LONG_LENGTH] = {0};
 		static uint8_t eventFl = 0;
 		static uint8_t firstStartFl = 1; 
 		uint8_t rxAlertAddr[1] = {0};
@@ -313,10 +313,6 @@ void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 				{
 					break;
 				}
-				else
-				{
-					
-				}
 		}
 		
 		if (!firstStartFl)
@@ -332,12 +328,12 @@ void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 		}
 		else if (!alertLevelCrossed)
 		{
-			sprintf(message, "Max. temp(%d'C) exceeded Tmp(%d)\r\n\n", tmpSensor[nTmpr].highTempLevel, nTmpr);
+			sprintf(message, "Max. temperature(%d'C) exceeded Tmp(%d)\r\n\n", tmpSensor[nTmpr].highTempLevel, nTmpr);
 			usartTx((uint8_t*)message, MESSAGE_LONG_LENGTH);
 		}
 		else if(alertLevelCrossed)
 		{
-			sprintf(message, "Temp(<%d) - returned to normal Tmp(%d)\r\n\n", tmpSensor[nTmpr].lowTempLevel, nTmpr);
+			sprintf(message, "Temperature(<%d) - returned to normal Tmp(%d)\r\n\n", tmpSensor[nTmpr].lowTempLevel, nTmpr);
 			usartTx((uint8_t*)message, MESSAGE_LONG_LENGTH);
 		}
 		
