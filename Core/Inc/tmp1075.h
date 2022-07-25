@@ -44,9 +44,14 @@
 
 // Settings for CFGR register
 #define SET_ALERT_IT_MOD 0x02
-#define SET_NUM_FAULTS 0x10  // 3 faults
 
-// Default minimum and maximum temperature edges for alerts
+// Number of faults for crossing the high level limit of temperature
+#define SET_NUM_FAULTS_1 0x0 << 3
+#define SET_NUM_FAULTS_2 0x1 << 3
+#define SET_NUM_FAULTS_3 0x2 << 3
+#define SET_NUM_FAULTS_4 0x3 << 3
+
+// Default minimum and maximum temperature levels for alerts
 #define DEFAULT_TLOW 26
 #define DEFAULT_THIGH 26
 
@@ -85,6 +90,7 @@ void aTransmitI2C(I2C_HandleTypeDef hi, uint16_t tmpAddr, uint8_t *aTxBuffer, ui
 void initIndividualTmpAlertIT(uint8_t nTmpr);
 void initIndividualTmpAlertLimits(uint8_t nTmpr);
 void initAlertSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff);
+void initNumFaultsSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff);
 void tugglePinTest(void);
 void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff);
 void showAllTmpParameters(void);

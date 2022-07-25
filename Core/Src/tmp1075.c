@@ -34,6 +34,7 @@ typedef struct
 	uint16_t tmpAddrWithAlign;
 	uint8_t lowTempLevel;
 	uint8_t highTempLevel;
+	uint8_t regCFGR;
 }TempSensor;
 
 // Definition of structure of data for each tmps
@@ -175,8 +176,11 @@ void initIndividualTmpAlertIT(uint8_t nTmpr)
 	// Set the address of the configurate register.
 	txBuf[0] = CFGR_REG_ADDR;
 	
+	// Save state in regCFGR field  of own tmp sensor
+	tmpSensor[nTmpr].regCFGR |= SET_ALERT_IT_MOD;
+	
 	// Set alert in interrupt mod
-	txBuf[1] |= SET_ALERT_IT_MOD;
+	txBuf[1] = tmpSensor[nTmpr].regCFGR;
 	
 	sprintf(message, "nTmpr(%d) IT init completed.\r\n", nTmpr);
 	aTransmitI2C(hi2c1,
@@ -187,8 +191,7 @@ void initIndividualTmpAlertIT(uint8_t nTmpr)
 	             message);
 }
 
-// TODO: Finish the fault init func
-void initIndividualTmpFaults(uint8_t nTmpr)
+void initIndividualTmpNumFaults(uint8_t nTmpr, uint8_t numOfFaults)
 {
 	char message[MESSAGE_LENGTH] = {0};
 	uint8_t txBuf[2] = {0};    // Tx I2C Buffer 
@@ -196,16 +199,48 @@ void initIndividualTmpFaults(uint8_t nTmpr)
 	// Set the address of the configurate register.
 	txBuf[0] = CFGR_REG_ADDR;
 	
-	// Set alert in interrupt mod
-	txBuf[1] |= SET_NUM_FAULTS;
+	// Set number of faults for crossing the high level limit of temperature
+	switch(numOfFaults)
+	{
+		case 1:
+			txBuf[1] = tmpSensor[nTmpr].regCFGR | SET_NUM_FAULTS_1;
+			break;
+		case 2:
+			txBuf[1] = tmpSensor[nTmpr].regCFGR | SET_NUM_FAULTS_2;
+			break;
+		case 3:
+			txBuf[1] = tmpSensor[nTmpr].regCFGR | SET_NUM_FAULTS_3;
+			break;
+		case 4:
+			txBuf[1] = tmpSensor[nTmpr].regCFGR | SET_NUM_FAULTS_4;
+			break;
+		default:
+			txBuf[1] = tmpSensor[nTmpr].regCFGR | SET_NUM_FAULTS_1;
+			break;
+	}
+	// Save state in regCFGR field  of own tmp sensor
+	tmpSensor[nTmpr].regCFGR |= txBuf[1];
 	
-	sprintf(message, "nTmpr(%d) IT init completed.\r\n", nTmpr);
+	sprintf(message, "nTmpr(%d) Number of faults set to %d.%x\r\n", nTmpr, numOfFaults, txBuf[1]);
 	aTransmitI2C(hi2c1,
 	             (uint16_t)tmpSensor[nTmpr].tmpAddrWithAlign,
 	             (uint8_t*)txBuf,
 	             (uint16_t)SIZE_TMP_TX_DATA_BUF,
 	             INIT_TIMEOUT,
 	             message);
+}
+
+
+void initNumFaultsSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff)
+{
+	uint8_t nTmpr = 0;
+	for (uint8_t conNum = 0; conNum < sizeTmpNumsBuff; conNum++)
+	{
+		nTmpr = connectedTmpNums[conNum];
+		
+		// Num of faults set to 3
+		initIndividualTmpNumFaults(nTmpr, 4);
+	}
 }
 
 
@@ -285,7 +320,7 @@ void getSelectedTemperatures(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 			uint8_t nTmpr = 0;
 			float temperature = 0;
 			char tempMessage[MESSAGE_LENGTH] = { 0 };
-			char endMessage[2] = "\r";
+			char endMessage[2] = "\n"; //For putty "\r"
 
 			for (uint8_t seqNum = 0; seqNum < sizeTmpNumsBuff; seqNum++)
 			{
@@ -334,7 +369,7 @@ void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 		
 		if (!firstStartFl)
 		{
-			sprintf(message, "\r\n\nAlert addr: %x\r\n", rxAlertAddr[0]);
+			sprintf(message, "Alert addr: %x\n", rxAlertAddr[0]); //For putty "\r\n\nAlert addr: %x\r\n"
 			usartTx((uint8_t*)message, MESSAGE_LENGTH);
 		}
 		
@@ -344,12 +379,12 @@ void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 		}
 		else if (!alertLevelCrossed)
 		{
-			sprintf(message, "Max. temperature(%d'C) exceeded Tmp(%d)\r\n\n", tmpSensor[nTmpr].highTempLevel, nTmpr);
+			sprintf(message, "Max. temperature(%d'C) exceeded Tmp(%d)\n", tmpSensor[nTmpr].highTempLevel, nTmpr); // For putty "Max. temperature(%d'C) exceeded Tmp(%d)\r\n\n"
 			usartTx((uint8_t*)message, MESSAGE_LONG_LENGTH);
 		}
 		else if(alertLevelCrossed)
 		{
-			sprintf(message, "Temperature(<%d) - returned to normal Tmp(%d)\r\n\n", tmpSensor[nTmpr].lowTempLevel, nTmpr);
+			sprintf(message, "Temperature(<%d) - returned to normal Tmp(%d)\n", tmpSensor[nTmpr].lowTempLevel, nTmpr); // For putty "Temperature(<%d) - returned to normal Tmp(%d)\r\n\n"
 			usartTx((uint8_t*)message, MESSAGE_LONG_LENGTH);
 		}
 		

@@ -152,8 +152,11 @@ int main(void)
 	// Transmit param through uart
 	// ~TESTING: 
 	
+	
 	// Init Alerts in tmp1075
 	initAlertSelectedTmps(connectedTmpNums, kTmpBufSize);
+	initNumFaultsSelectedTmps(connectedTmpNums, kTmpBufSize);
+	
 
   /* USER CODE END 2 */
 
