@@ -27,6 +27,7 @@
 #include "pulsegen.h"
 #include "uart_io.h"
 #include "tmp1075.h"
+#include "vars_it.h"
 
 /* USER CODE END Includes */
 
@@ -155,6 +156,8 @@ int main(void)
 	
 	// Init Alerts in tmp1075
 	initAlertSelectedTmps(connectedTmpNums, kTmpBufSize);
+	
+	// Set number of faults for crossing the high level limit of temperature
 	initNumFaultsSelectedTmps(connectedTmpNums, kTmpBufSize);
 	
 
@@ -166,6 +169,7 @@ int main(void)
   {
 		getSelectedTemperatures(connectedTmpNums, kTmpBufSize);
 		handlerAlertIT(connectedTmpNums, kTmpBufSize);
+		
 
     /* USER CODE END WHILE */
 

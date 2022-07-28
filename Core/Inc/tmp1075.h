@@ -52,8 +52,8 @@
 #define SET_NUM_FAULTS_4 0x3 << 3
 
 // Default minimum and maximum temperature levels for alerts
-#define DEFAULT_TLOW 26
-#define DEFAULT_THIGH 26
+#define DEFAULT_TLOW 27
+#define DEFAULT_THIGH 27
 
 #define NUMBER_OF_TMP_SENSORS 32
 
