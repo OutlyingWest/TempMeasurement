@@ -51,3 +51,4 @@ signalgen\main.o: ../Core/Inc/pulsegen.h
 signalgen\main.o: ../Core/Inc/uart_io.h
 signalgen\main.o: ../Core/Inc/tmp1075.h
 signalgen\main.o: ../Core/Inc/vars_it.h
+signalgen\main.o: ../Core/Inc/vars_it_typedef.h

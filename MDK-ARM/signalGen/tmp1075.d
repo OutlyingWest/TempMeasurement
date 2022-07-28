@@ -39,3 +39,4 @@ signalgen\tmp1075.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_ll_gpio.h
 signalgen\tmp1075.o: ../Core/Inc/uart_io.h
 signalgen\tmp1075.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_ll_usart.h
 signalgen\tmp1075.o: ../Core/Inc/vars_it.h
+signalgen\tmp1075.o: ../Core/Inc/vars_it_typedef.h

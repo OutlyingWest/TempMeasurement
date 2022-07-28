@@ -1,6 +1,6 @@
 #include "stm32f3xx_ll_usart.h"
 
-#define UART_BUFFER_SIZE 20
+#define UART_BUFFER_SIZE 70
 
 // UART variables
 extern char rxDataUART[10];
@@ -13,7 +13,6 @@ typedef struct
 	char RxData[UART_BUFFER_SIZE];
 	char TxData[UART_BUFFER_SIZE];
 }sUART;
-
 
 //extern sUART;
 extern sUART sUART3;

@@ -221,7 +221,7 @@ void initIndividualTmpNumFaults(uint8_t nTmpr, uint8_t numOfFaults)
 	// Save state in regCFGR field  of own tmp sensor
 	tmpSensor[nTmpr].regCFGR |= txBuf[1];
 	
-	sprintf(message, "nTmpr(%d) Number of faults set to %d.%x\r\n", nTmpr, numOfFaults, txBuf[1]);
+	sprintf(message, "nTmpr(%d) Number of faults set to %d\r\n", nTmpr, numOfFaults);
 	aTransmitI2C(hi2c1,
 	             (uint16_t)tmpSensor[nTmpr].tmpAddrWithAlign,
 	             (uint8_t*)txBuf,
@@ -313,9 +313,9 @@ void getSelectedTemperatures(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 	// If Alert interrupt is occured, temperature receiving is blocked 
 	if (!interruptAlertOccuredFl)
 	{
-		if ((tim6Tick - tim6LastTime) > GET_TEMP_TIME)
+		if ((tim6Tick - tim6LastTimeTmp) > GET_TEMP_TIME)
 		{
-			tim6LastTime = tim6Tick;
+			tim6LastTimeTmp = tim6Tick;
 			
 			uint8_t nTmpr = 0;
 			float temperature = 0;

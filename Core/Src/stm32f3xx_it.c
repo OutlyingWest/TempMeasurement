@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
+#include "main.h"
 #include "stm32f3xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -50,15 +51,25 @@
 // Increases every millisecond in interrupt handler of tim6 
 uint32_t tim6Tick = 0;
 
-// If this flag is set, then an AlertHandleIT function in mainloop will executed
+// Last time ticks value of tim6
+uint32_t tim6LastTimeTmp = 0;
+
+uint32_t tim6LastTimeUSART = 0;
+
+// If this flag is set, then an handlerAlertIT function in mainloop will executed
 volatile uint8_t interruptAlertOccuredFl = 0;
 
+// If this flag is set, then a handlerUsartRxIT function in mainloop will executed
+volatile uint8_t rxUnblockUSARTFl = 0;
+
+// Creating the instance of UART structure 
+sUARTit sUART3it = {0};
+
+
 char messageAL[MESSAGE_LENGTH] = {0};
+
 // Alert address Rx Buffer 
 uint8_t rxAlrtAddrI2C[1] = {0};
-
-// Last time ticks value of tim6
-uint32_t tim6LastTime = 0;
 
 //volatile uint8_t rxI2C = 0;
 //char message[MESSAGE_LENGTH] = {0};
@@ -275,6 +286,24 @@ void I2C1_ER_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles USART3 global interrupt / USART3 wake-up interrupt through EXTI line 28.
+  */
+void USART3_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART3_IRQn 0 */
+	
+	// Set handler unblock flag 
+	rxUnblockUSARTFl = 1;
+	
+  /* USER CODE END USART3_IRQn 0 */
+  /* USER CODE BEGIN USART3_IRQn 1 */
+
+	//LL_USART_ClearFlag_TC(USART_TypeDef *USARTx)	
+	
+  /* USER CODE END USART3_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM6 global interrupt and DAC1 underrun interrupt.
   */
 void TIM6_DAC_IRQHandler(void)
@@ -287,7 +316,8 @@ void TIM6_DAC_IRQHandler(void)
 	else
 	{
 		tim6Tick = 0;
-		tim6LastTime = 0;
+		tim6LastTimeTmp = 0;
+		tim6LastTimeUSART = 0;
 	}
   /* USER CODE END TIM6_DAC_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);
