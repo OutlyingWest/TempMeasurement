@@ -91,7 +91,7 @@ void initIndividualTmpAlertIT(uint8_t nTmpr);
 void initIndividualTmpAlertLimits(uint8_t nTmpr);
 void initAlertSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff);
 void initNumFaultsSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff);
-void tugglePinTest(void);
+void tugglePinTest(const char* const led);
 void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff);
 void showAllTmpParameters(void);
 void showIndividualTmpParameters(uint8_t nTmpr, uint8_t headerOn);

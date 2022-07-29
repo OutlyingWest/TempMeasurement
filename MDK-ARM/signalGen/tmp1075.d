@@ -1,5 +1,6 @@
 signalgen\tmp1075.o: ..\Core\Src\tmp1075.c
 signalgen\tmp1075.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+signalgen\tmp1075.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 signalgen\tmp1075.o: ../Core/Inc/tmp1075.h
 signalgen\tmp1075.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h
 signalgen\tmp1075.o: ../Core/Inc/stm32f3xx_hal_conf.h

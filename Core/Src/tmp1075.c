@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "tmp1075.h"
 #include "uart_io.h"
 #include "vars_it.h"
@@ -387,9 +388,6 @@ void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 			sprintf(message, "Temperature(<%d) - returned to normal Tmp(%d)\n", tmpSensor[nTmpr].lowTempLevel, nTmpr); // For putty "Temperature(<%d) - returned to normal Tmp(%d)\r\n\n"
 			usartTx((uint8_t*)message, MESSAGE_LONG_LENGTH);
 		}
-		
-		tugglePinTest();
-		
 		// Clear the alert interrupt flag 
 		interruptAlertOccuredFl = 0;
 		
@@ -520,16 +518,31 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c) {}
 
 
-void tugglePinTest()
+void tugglePinTest(const char* const led)
 {
-	if( LL_GPIO_IsInputPinSet(GPIOE, LL_GPIO_PIN_8)) 
+	if (!strcmp(led, "led"))
 	{
-		LL_GPIO_ResetOutputPin(GPIOE, LL_GPIO_PIN_8);
+		if(LL_GPIO_IsInputPinSet(GPIOB, LL_GPIO_PIN_7)) 
+		{
+			LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_7);
+		}
+		else 
+		{
+			LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_7);
+		}
 	}
-	else 
+	else if (!strcmp(led, "pinE8"))
 	{
-		LL_GPIO_SetOutputPin(GPIOE, LL_GPIO_PIN_8);
+		if(LL_GPIO_IsInputPinSet(GPIOE, LL_GPIO_PIN_8)) 
+		{
+			LL_GPIO_ResetOutputPin(GPIOE, LL_GPIO_PIN_8);
+		}
+		else 
+		{
+			LL_GPIO_SetOutputPin(GPIOE, LL_GPIO_PIN_8);
+		}
 	}
+
 }
 
 

@@ -160,6 +160,9 @@ int main(void)
 	// Set number of faults for crossing the high level limit of temperature
 	initNumFaultsSelectedTmps(connectedTmpNums, kTmpBufSize);
 	
+	//Init the USART IT for event of filling data register
+	LL_USART_EnableIT_RXNE(USART3);
+	LL_USART_EnableIT_TC(USART3);
 
   /* USER CODE END 2 */
 
@@ -167,9 +170,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		getSelectedTemperatures(connectedTmpNums, kTmpBufSize);
+		//getSelectedTemperatures(connectedTmpNums, kTmpBufSize);
 		handlerAlertIT(connectedTmpNums, kTmpBufSize);
-		
+		handlerUsartRxIT();
 
     /* USER CODE END WHILE */
 

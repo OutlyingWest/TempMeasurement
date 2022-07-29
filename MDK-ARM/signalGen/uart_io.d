@@ -1,4 +1,6 @@
 signalgen\uart_io.o: ..\Core\Src\uart_io.c
+signalgen\uart_io.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+signalgen\uart_io.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 signalgen\uart_io.o: ../Core/Inc/uart_io.h
 signalgen\uart_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_ll_usart.h
 signalgen\uart_io.o: ../Drivers/CMSIS/Device/ST/STM32F3xx/Include/stm32f3xx.h
@@ -37,3 +39,5 @@ signalgen\uart_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim.h
 signalgen\uart_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h
 signalgen\uart_io.o: ../Core/Inc/vars_it.h
 signalgen\uart_io.o: ../Core/Inc/vars_it_typedef.h
+signalgen\uart_io.o: ../Core/Inc/tmp1075.h
+signalgen\uart_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_ll_gpio.h
