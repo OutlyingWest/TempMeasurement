@@ -6,4 +6,5 @@ typedef struct
 {
 	uint8_t rxData[USART_BUFFER_SIZE];
 	uint8_t txData[USART_BUFFER_SIZE];
+	uint8_t txDataTemporary;
 }sUARTit;

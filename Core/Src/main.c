@@ -162,7 +162,7 @@ int main(void)
 	
 	//Init the USART IT for event of filling data register
 	LL_USART_EnableIT_RXNE(USART3);
-	LL_USART_EnableIT_TC(USART3);
+	//LL_USART_EnableIT_TC(USART3);
 
   /* USER CODE END 2 */
 
@@ -170,9 +170,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		//getSelectedTemperatures(connectedTmpNums, kTmpBufSize);
+		getSelectedTemperatures(connectedTmpNums, kTmpBufSize);
 		handlerAlertIT(connectedTmpNums, kTmpBufSize);
-		handlerUsartRxIT();
+		handlerUsartRxIT(ON);
 
     /* USER CODE END WHILE */
 

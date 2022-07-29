@@ -75,9 +75,9 @@ void usartRx(uint8_t* rxdt, uint8_t* txdt, uint16_t sz)
 }
 
 
-void handlerUsartRxIT()
+void handlerUsartRxIT(uint8_t echo)
 {
-	if (txUnblockUsartHandlerFl)
+	if (echo && txUnblockUsartHandlerFl)
 	{
 		sprintf((char*)sUART3it.rxData, "%s%s", sUART3it.rxData, "\r\n");
 		usartTx(sUART3it.rxData, USART_BUFFER_SIZE);

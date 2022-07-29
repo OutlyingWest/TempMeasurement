@@ -33,4 +33,4 @@ void usartRxCont(uint8_t* rxdt,
 								 uint8_t* txdt,
 								 uint16_t sz);
 
-void handlerUsartRxIT(void);
+void handlerUsartRxIT(uint8_t echo);

@@ -294,16 +294,15 @@ void I2C1_ER_IRQHandler(void)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-	
-	// If byte is received to read register - write it to the rx buffer 
+
 	if (LL_USART_IsActiveFlag_RXNE(USART3))
 	{	
-		//tugglePinTest("led");
 		if (nByte < USART_BUFFER_SIZE && !txUnblockUsartHandlerFl)
 		{
+			// If byte is received to read register - write it to the rx buffer
 			sUART3it.rxData[nByte] = LL_USART_ReceiveData8(USART3);
 			
-			//If message fully sended - stop fill the rx buffer
+			//If message fully sended - stop fills the rx buffer
 			if (sUART3it.rxData[nByte] == '\r' || sUART3it.rxData[nByte] == '\n')
 			{
 				nByte = 0;
@@ -318,17 +317,12 @@ void USART3_IRQHandler(void)
 		}
 		else
 		{
+			// If buffer is overflowed, must read data from register anywere
+			// in order to avoid blocking in IT
 			LL_USART_ReceiveData8(USART3);
 		}
 	}
-		
-	if (LL_USART_IsActiveFlag_TC(USART3))
-	{
-		LL_USART_ClearFlag_TC(USART3);
-		tugglePinTest("led");
-	}
 	
-	//(void)USART3->RDR;
   /* USER CODE END USART3_IRQn 0 */
   /* USER CODE BEGIN USART3_IRQn 1 */
 	
