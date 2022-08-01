@@ -52,8 +52,8 @@
 #define SET_NUM_FAULTS_4 0x3 << 3
 
 // Default minimum and maximum temperature levels for alerts
-#define DEFAULT_TLOW 27
-#define DEFAULT_THIGH 27
+#define DEFAULT_TLOW 28
+#define DEFAULT_THIGH 28
 
 #define NUMBER_OF_TMP_SENSORS 32
 
@@ -80,7 +80,7 @@ extern uint8_t txBufferI2C[];
 extern const uint8_t kTmpBufSize;
 
 // Buffer of connected tmps
-extern uint8_t connectedTmpNums[];
+extern uint8_t *connectedTmpNums;
 
 // Address which sends to over tmps if Alert line adge is low
 extern const uint16_t alertResponseAddrWithAlign;

@@ -20,10 +20,17 @@ uint8_t txTmpBufferI2C[SIZE_TMP_TX_DATA_BUF] = {0};
 
 // Buffer of connected tmps
 const uint8_t kTmpBufSize = 3;
-uint8_t connectedTmpNums[kTmpBufSize] = {0, 1, 8};
+uint8_t connectedTmpNumsDefault[kTmpBufSize] = {0, 1, 8};
+
+// Buffer of connected tmps
+uint8_t *connectedTmpNums = connectedTmpNumsDefault;
 
 // Address which sends to over tmps if Alert line adge is low with align
 const uint16_t alertResponseAddrWithAlign = ALERT_RESPONSE_ADDR << 1;
+
+//====================TODO:============================ 
+// add the selected methods for show and set temperature
+
 
 
 

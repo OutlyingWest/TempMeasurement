@@ -37,5 +37,7 @@ signalgen\global_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_pwr.h
 signalgen\global_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_pwr_ex.h
 signalgen\global_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim.h
 signalgen\global_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h
+signalgen\global_io.o: ../Core/Inc/tmp1075.h
+signalgen\global_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_ll_gpio.h
 signalgen\global_io.o: ../Core/Inc/vars_it.h
 signalgen\global_io.o: ../Core/Inc/vars_it_typedef.h
