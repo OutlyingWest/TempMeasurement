@@ -1,5 +1,8 @@
 #include "stm32f3xx_ll_usart.h"
 
+
+
+
 #define UART_BUFFER_SIZE 70
 
 // UART variables

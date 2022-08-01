@@ -1,4 +1,5 @@
 signalgen\global_io.o: ..\Core\Src\global_io.c
+signalgen\global_io.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 signalgen\global_io.o: ../Core/Inc/global_io.h
 signalgen\global_io.o: ../Core/Inc/uart_io.h
 signalgen\global_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_ll_usart.h
@@ -36,3 +37,5 @@ signalgen\global_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_pwr.h
 signalgen\global_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_pwr_ex.h
 signalgen\global_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim.h
 signalgen\global_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h
+signalgen\global_io.o: ../Core/Inc/vars_it.h
+signalgen\global_io.o: ../Core/Inc/vars_it_typedef.h

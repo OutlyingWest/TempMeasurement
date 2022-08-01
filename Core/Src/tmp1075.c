@@ -25,8 +25,6 @@ uint8_t connectedTmpNums[kTmpBufSize] = {0, 1, 8};
 // Address which sends to over tmps if Alert line adge is low with align
 const uint16_t alertResponseAddrWithAlign = ALERT_RESPONSE_ADDR << 1;
 
-// Flag using to enable to get output from tmp1075 (Output enable if 1 and disable if 0)
-uint8_t getOutPutFl = 0;     // Must be set for each trying read data from tmp1075
 
 
 // Structure of data for each tmps
@@ -37,6 +35,7 @@ typedef struct
 	uint8_t highTempLevel;
 	uint8_t regCFGR;
 }TempSensor;
+
 
 // Definition of structure of data for each tmps
 TempSensor tmpSensor[NUMBER_OF_TMP_SENSORS] = { 0 };
@@ -504,14 +503,14 @@ void initAlertSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff)
 // the function of receive is called
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-	if (getOutPutFl)
-	{
-		getOutPutFl = 0;
-		HAL_I2C_Master_Receive_IT(hi2c,
-													    (uint16_t)tmpSensor[0].tmpAddrWithAlign, 
-		                          (uint8_t*)ptrRxBufferI2C,
-		                          (uint16_t)SIZE_TMP_RX_DATA_BUF);
-	}
+//	if (getOutPutFl)
+//	{
+//		getOutPutFl = 0;
+//		HAL_I2C_Master_Receive_IT(hi2c,
+//													    (uint16_t)tmpSensor[0].tmpAddrWithAlign, 
+//		                          (uint8_t*)ptrRxBufferI2C,
+//		                          (uint16_t)SIZE_TMP_RX_DATA_BUF);
+//	}
 }
 
 

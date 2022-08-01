@@ -20,8 +20,6 @@ uint8_t txDataItUART[10] = {0};
 uint16_t aBufferSizeUART = 10;
 
 
-
-
 void usartRx(uint8_t* rxdt, uint8_t* txdt, uint16_t sz)
 {
 		uint16_t ind = 0;

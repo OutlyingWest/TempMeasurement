@@ -57,7 +57,8 @@
 
 #define NUMBER_OF_TMP_SENSORS 32
 
-
+// Display modes
+#define CSV_MOD_ON 1
 #define ON 1
 #define OFF 0
 #define NO_PRINT 0
