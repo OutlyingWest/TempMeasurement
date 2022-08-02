@@ -85,6 +85,9 @@ extern uint8_t *connectedTmpNums;
 // Address which sends to over tmps if Alert line adge is low
 extern const uint16_t alertResponseAddrWithAlign;
 
+// Variable for turn on and turn off csv mod
+extern uint8_t csvMod;
+
 // Function prototypes
 
 // Receive and transmit functions for tmp sensors

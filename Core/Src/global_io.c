@@ -146,7 +146,22 @@ void inputCommandWizard()
 	
 //
 void cswExec()
-{}
+{
+	char messageOpt[MESSAGE_LENGTH] = "Err: undefined option\r\n";
+	
+	if (curCmd.optNum == ENABLE_CSV_MOD)
+	{
+		csvMod = ON;
+	}
+	else if (curCmd.optNum == DISABLE_CSV_MOD)
+	{
+		csvMod = OFF;
+	}
+	else
+	{
+		usartTx((uint8_t*)messageOpt, MESSAGE_LENGTH);
+	}
+}
 
 
 //
@@ -229,6 +244,8 @@ void showParamExec()
 //
 void tmpSendExec()
 {
+	char messageOpt[MESSAGE_LENGTH] = "Err: undefined option\r\n";
+	
 	if (curCmd.optNum == ENABLE_TMP_OUT)
 	{
 		tmpsendFl = 1;
@@ -239,7 +256,7 @@ void tmpSendExec()
 	}
 	else
 	{
-		// Error
+		usartTx((uint8_t*)messageOpt, MESSAGE_LENGTH);
 	}
 }
 	

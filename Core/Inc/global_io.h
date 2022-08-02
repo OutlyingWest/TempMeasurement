@@ -13,8 +13,15 @@
 // Defines for command options
 #define NONE -111
 #define PRINT 0
+
+// For tmpSendExec()
 #define ENABLE_TMP_OUT 0
 #define DISABLE_TMP_OUT 1
+
+// For cswExec()
+#define ENABLE_CSV_MOD 0
+#define DISABLE_CSV_MOD 1
+
 
 // For strcmp in command finde function
 #define MATCHED 0

@@ -29,7 +29,7 @@ uint8_t *connectedTmpNums = connectedTmpNumsDefault;
 const uint16_t alertResponseAddrWithAlign = ALERT_RESPONSE_ADDR << 1;
 
 // Variable for turn on and turn off csv mod
-uint8_t csvMod = ON;
+uint8_t csvMod = OFF;
 
 //====================TODO:============================ 
 // add the selected methods for show and set temperature
