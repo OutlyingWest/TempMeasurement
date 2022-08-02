@@ -1,10 +1,14 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "vars_it.h"
 #include "global_io.h"
 
 
 
+
+// Flag for enable or disable sending of temperature
+uint8_t tmpsendFl = 1;
 
 // Structure of commands
 struct Commands
@@ -16,7 +20,7 @@ struct Commands
 										1, "pwr",      "--on",    "--off",
 										2, "setlvl",   "-p",      "None",
 										3, "shwparam", "--all",   "None",
-										4, "tmpsend",  "-e",      "-d",
+										4, "tsend",    "-e",      "-d",
 										5, "echo",     "--on",    "--off",
 										6, "ntmps",    "--check", "--set",};
 
@@ -37,28 +41,30 @@ struct currentCmd
 //             2 |    0(-p)| 1,27,28
 void inputCommandFinder(uint8_t *rxUsartBuff, uint8_t sizeBuff)
 {
-	char sep[2] = " ";
+	char sep[4] = " \r\n";
 	char *rxPtr = (char*)rxUsartBuff;
-	uint8_t matchFl = 1; 
-	char message[MESSAGE_LENGTH] = "Err: undefined command\r\n";
+	uint8_t matchCmdFl = 1;
+	char messageErrCmd[MESSAGE_LENGTH] = "Err: undefined command\r\n";
 	
 	rxPtr = strtok ((char*)rxUsartBuff, sep);
 
 	// Find command
 	for (int cd = 0; rxPtr != NULL && cd < S_CMD_SIZE; cd++)
 	{
-		if (MATCHED == (matchFl = strcmp(rxPtr, cmd[cd].command)))
+		if (MATCHED == strcmp(rxPtr, cmd[cd].command))
 		{
+			matchCmdFl = MATCHED;
 			curCmd.code = cmd[cd].code;
 			rxPtr = strtok(NULL, sep);
 			
 			// Find option
-			for (int op = 0; rxPtr != NULL && op < S_CMD_SIZE; op++)
+			for (int op = 0; rxPtr != NULL && op < OPT_NUM; op++)
 			{
 				if (MATCHED == strcmp(rxPtr, cmd[cd].option[op]))
 				{
 					curCmd.optNum = op;
 					rxPtr = strtok(NULL, sep);
+					break;
 				}
 			}
 			
@@ -70,10 +76,14 @@ void inputCommandFinder(uint8_t *rxUsartBuff, uint8_t sizeBuff)
 			break;
 		}
 	}
-	if (matchFl != MATCHED)
+	if (matchCmdFl != MATCHED)
 	{
-		usartTx((uint8_t*)message, MESSAGE_LENGTH);
+		usartTx((uint8_t*)messageErrCmd, MESSAGE_LENGTH);
 	}
+//	else if (matchOptFl != MATCHED)
+//	{
+//		usartTx((uint8_t*)messageErrOpt, MESSAGE_LENGTH);
+//	}
 }
 	
 // Execute finded commands
@@ -100,7 +110,7 @@ void inputCommandExecuter()
 	{
 		tmpSendExec();
 	}
-	else if (curCmd.code == cmd[6].code)
+	else if (curCmd.code == cmd[5].code)
 	{
 		echoExec();
 	}
@@ -118,6 +128,13 @@ void inputCommandWizard()
 	{
 		// Echo ON
 		handlerUsartRxIT(ON);
+		
+		// TESTING
+		char messageRx[MESSAGE_LENGTH] = {0};
+		sprintf(messageRx, "Cmd in Wiz %s\r\n", (char*)sUART3it.rxData);
+		usartTx((uint8_t*)messageRx, MESSAGE_LENGTH);
+		// ~TESTING
+		
 		inputCommandFinder(sUART3it.rxData, USART_BUFFER_SIZE);
 		inputCommandExecuter();
 		curCmdStructCleaner();
@@ -151,6 +168,11 @@ void setLvlExec()
 	uint8_t lowTempLevel = 0;
 	uint8_t highTempLevel = 0;
 	
+	// TESTING
+	char messageOption[MESSAGE_LENGTH] = {0};
+	sprintf(messageOption, "Opt in setlvl Exec %d\r\n", (int)curCmd.optNum);
+	usartTx((uint8_t*)messageOption, MESSAGE_LENGTH);
+	// ~TESTING
 	
 	if (curCmd.optNum == PRINT)
 	{
@@ -206,7 +228,20 @@ void showParamExec()
 
 //
 void tmpSendExec()
-{}
+{
+	if (curCmd.optNum == ENABLE_TMP_OUT)
+	{
+		tmpsendFl = 1;
+	}
+	else if (curCmd.optNum == DISABLE_TMP_OUT)
+	{
+		tmpsendFl = 0;
+	}
+	else
+	{
+		// Error
+	}
+}
 	
 
 //
@@ -221,16 +256,26 @@ void errorCmdExec()
 	
 void curCmdStructCleaner()
 {
-	curCmd.code = 0;
-	curCmd.optNum = 0;
-	for (uint8_t nv; nv < VAL_SIZE; curCmd.value[nv++] = 0){}
+	curCmd.code = NONE;
+	curCmd.optNum = NONE;
+	for (uint8_t nv = 0; nv < VAL_SIZE; curCmd.value[nv++] = 0){}
 }
 
 void usartRxDataBuffCleaner()
 {
-	for (uint8_t nd; nd < USART_BUFFER_SIZE; sUART3it.rxData[nd++] = 0){}
+	for (uint8_t nd = 0; nd < USART_BUFFER_SIZE; sUART3it.rxData[nd++] = '\0'){}
 }
 	
+
+void tempOutput()
+{
+	if (tmpsendFl)
+	{
+		getSelectedTemperatures(connectedTmpNums, kTmpBufSize);
+	}
+}
+
+
 	
 // Should count the time in order to avoid the long suspension in reading keyboard
 // Maybe should use the interrupts

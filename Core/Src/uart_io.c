@@ -79,7 +79,7 @@ void handlerUsartRxIT(uint8_t echo)
 	{
 		char rxStr[USART_BUFFER_SIZE] = {0};
 		strcpy(rxStr, (char*)sUART3it.rxData);
-		sprintf((char*)sUART3it.rxData, "%s%s", sUART3it.rxData, "\r\n");
+		sprintf(rxStr, "%s%s", rxStr, "\r\n");
 		usartTx((uint8_t*)rxStr, USART_BUFFER_SIZE);
 		// Reset handler unblock flag 
 		unblockUsartHandlerFl = 0;

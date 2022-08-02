@@ -1,6 +1,7 @@
 signalgen\global_io.o: ..\Core\Src\global_io.c
 signalgen\global_io.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 signalgen\global_io.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+signalgen\global_io.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 signalgen\global_io.o: ../Core/Inc/vars_it.h
 signalgen\global_io.o: ../Core/Inc/vars_it_typedef.h
 signalgen\global_io.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h

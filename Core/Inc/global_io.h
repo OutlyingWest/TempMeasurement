@@ -13,6 +13,8 @@
 // Defines for command options
 #define NONE -111
 #define PRINT 0
+#define ENABLE_TMP_OUT 0
+#define DISABLE_TMP_OUT 1
 
 // For strcmp in command finde function
 #define MATCHED 0
@@ -27,9 +29,14 @@ typedef struct
 } sIO;
 
 
+// Externs
 
+// Flag that enable or disable send temperature measurements
+// to PC from USART
+extern uint8_t tmpsendFl;
 
 // Function prototypes
+void tempOutput(void);
 void inputCommandWizard(void);
 
 void curCmdStructCleaner(void);

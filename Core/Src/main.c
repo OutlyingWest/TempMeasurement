@@ -171,9 +171,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		getSelectedTemperatures(connectedTmpNums, kTmpBufSize);
+		tempOutput();
 		handlerAlertIT(connectedTmpNums, kTmpBufSize);
-		//handlerUsartRxIT(ON);
 		inputCommandWizard();
 
     /* USER CODE END WHILE */

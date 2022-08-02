@@ -393,7 +393,6 @@ void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 		}
 
 		
-		
 		HAL_I2C_Master_Receive(&hi2c1,
 		                       (uint16_t)alertResponseAddrWithAlign,
 		                       (uint8_t*)rxAlertAddr,
@@ -422,12 +421,26 @@ void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 		}
 		else if (!alertLevelCrossed)
 		{
-			sprintf(message, formatHigh, tmpSensor[nTmpr].highTempLevel, nTmpr); // For putty "Max. temperature(%d'C) exceeded Tmp(%d)\r\n\n"
+			if (csvMod == ON)
+			{
+				sprintf(message, formatHigh, nTmpr);
+			}
+			else
+			{
+				sprintf(message, formatHigh, tmpSensor[nTmpr].highTempLevel, nTmpr); // For putty "Max. temperature(%d'C) exceeded Tmp(%d)\r\n\n"
+			}
 			usartTx((uint8_t*)message, MESSAGE_LONG_LENGTH);
 		}
 		else if(alertLevelCrossed)
 		{
-			sprintf(message, formatLow, tmpSensor[nTmpr].lowTempLevel, nTmpr); // For putty "Temperature(<%d) - returned to normal Tmp(%d)\r\n\n"
+			if (csvMod == ON)
+			{
+				sprintf(message, formatLow, nTmpr);
+			}
+			else
+			{
+				sprintf(message, formatLow, tmpSensor[nTmpr].lowTempLevel, nTmpr); // For putty "Temperature(<%d) - returned to normal Tmp(%d)\r\n\n"
+			}
 			usartTx((uint8_t*)message, MESSAGE_LONG_LENGTH);
 		}
 		// Clear the alert interrupt flag 
