@@ -13,7 +13,7 @@ extern uint32_t tim6LastTimeUSART;
 extern volatile uint8_t interruptAlertOccuredFl;
 
 // If this flag is set, then a handlerUsartRxIT function in mainloop will executed
-extern volatile uint8_t txUnblockUsartHandlerFl;
+extern volatile uint8_t unblockUsartHandlerFl;
 
 // Structure with Rx Tx USART buffers for IT
 extern sUARTit sUART3it;

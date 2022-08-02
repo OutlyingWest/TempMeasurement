@@ -48,7 +48,9 @@ signalgen\main.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_ll_gpio.h
 signalgen\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 signalgen\main.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_ll_tim.h
 signalgen\main.o: ../Core/Inc/pulsegen.h
-signalgen\main.o: ../Core/Inc/uart_io.h
 signalgen\main.o: ../Core/Inc/tmp1075.h
 signalgen\main.o: ../Core/Inc/vars_it.h
 signalgen\main.o: ../Core/Inc/vars_it_typedef.h
+signalgen\main.o: ../Core/Inc/global_io.h
+signalgen\main.o: ../Core/Inc/uart_io.h
+signalgen\main.o: ../Core/Inc/tmp1075.h

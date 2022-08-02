@@ -1,6 +1,5 @@
 #include "uart_io.h"
 #include "tmp1075.h"
-#include "vars_it.h"
 
 
 
@@ -31,6 +30,10 @@ typedef struct
 
 
 // Function prototypes
+void inputCommandWizard(void);
+
+void curCmdStructCleaner(void);
+void usartRxDataBuffCleaner(void);
 
 // Function prototypes for execute several commands 
 void cswExec(void);

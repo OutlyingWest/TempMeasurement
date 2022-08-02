@@ -61,7 +61,7 @@ uint32_t tim6LastTimeUSART = 0;
 volatile uint8_t interruptAlertOccuredFl = 0;
 
 // If this flag is set, then a handlerUsartRxIT function in mainloop will executed
-volatile uint8_t txUnblockUsartHandlerFl = 0;
+volatile uint8_t unblockUsartHandlerFl = 0;
 
 // Creating the instance of UART structure 
 sUARTit sUART3it = {0};
@@ -297,7 +297,7 @@ void USART3_IRQHandler(void)
 
 	if (LL_USART_IsActiveFlag_RXNE(USART3))
 	{	
-		if (nByte < USART_BUFFER_SIZE && !txUnblockUsartHandlerFl)
+		if (nByte < USART_BUFFER_SIZE && !unblockUsartHandlerFl)
 		{
 			// If byte is received to read register - write it to the rx buffer
 			sUART3it.rxData[nByte] = LL_USART_ReceiveData8(USART3);
@@ -308,7 +308,7 @@ void USART3_IRQHandler(void)
 				nByte = 0;
 
 				// Set handler unblock flag 
-				txUnblockUsartHandlerFl = 1;
+				unblockUsartHandlerFl = 1;
 			}
 			else
 			{

@@ -75,12 +75,14 @@ void usartRx(uint8_t* rxdt, uint8_t* txdt, uint16_t sz)
 
 void handlerUsartRxIT(uint8_t echo)
 {
-	if (echo && txUnblockUsartHandlerFl)
+	if (echo && unblockUsartHandlerFl)
 	{
+		char rxStr[USART_BUFFER_SIZE] = {0};
+		strcpy(rxStr, (char*)sUART3it.rxData);
 		sprintf((char*)sUART3it.rxData, "%s%s", sUART3it.rxData, "\r\n");
-		usartTx(sUART3it.rxData, USART_BUFFER_SIZE);
+		usartTx((uint8_t*)rxStr, USART_BUFFER_SIZE);
 		// Reset handler unblock flag 
-		txUnblockUsartHandlerFl = 0;
+		unblockUsartHandlerFl = 0;
 	}
 }
 

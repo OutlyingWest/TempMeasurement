@@ -86,19 +86,40 @@ extern uint8_t *connectedTmpNums;
 extern const uint16_t alertResponseAddrWithAlign;
 
 // Function prototypes
+
+// Receive and transmit functions for tmp sensors
 void aReceiveI2C(I2C_HandleTypeDef hi, uint16_t tmpAddr, uint8_t *aTxBuffer, uint16_t sizeDataBuf, uint32_t timeout, const char *comleteMessage);
 void aTransmitI2C(I2C_HandleTypeDef hi, uint16_t tmpAddr, uint8_t *aTxBuffer, uint16_t sizeDataBuf, uint32_t timeout, const char *comleteMessage);
+
+// Set Alert parameters for tmp sensors
 void initIndividualTmpAlertIT(uint8_t nTmpr);
 void initIndividualTmpAlertLimits(uint8_t nTmpr);
+void initSelectedTmpAlertLimits(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff);
 void initAlertSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff);
+
+// Set number of faults when alert level is crossed
 void initNumFaultsSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff);
+
+// Function which apply make some tests of working another code blocks
 void tugglePinTest(const char* const led);
+
+// Alert interrupt handler - invoke when interrupt is occured 
 void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff);
-void showAllTmpParameters(void);
+
+// Show parameters of tmp sensors on PC
+void showAllTmpParameters(uint8_t headerOn);
+void showSelectedTmpParameters(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff, uint8_t headerOn);
 void showIndividualTmpParameters(uint8_t nTmpr, uint8_t headerOn);
+
+// Setters of some tmp sensors parameters 
 void setAllDefaultTmpParameters(uint8_t lowTempLevel,
-                             uint8_t highTempLevel,
-                             uint8_t isPrint);
+																uint8_t highTempLevel,
+																uint8_t isPrint);
+void setSelectedTmpParameters(uint8_t lowTempLevel,
+                              uint8_t highTempLevel,
+															uint8_t *tmpNums,
+															uint8_t sizeTmpNumsBuff,
+                              uint8_t isPrint);
 void setIndividualTmpParameters(uint8_t nTmpr,
 						                    uint8_t lowTempLevel,
 						                    uint8_t highTempLevel,

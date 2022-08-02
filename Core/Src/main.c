@@ -25,9 +25,10 @@
 #include <stdio.h>
 #include "stm32f3xx_ll_tim.h"
 #include "pulsegen.h"
-#include "uart_io.h"
+//#include "uart_io.h"
 #include "tmp1075.h"
 #include "vars_it.h"
+#include "global_io.h"
 
 /* USER CODE END Includes */
 
@@ -148,7 +149,7 @@ int main(void)
 	setIndividualTmpParameters(4, 0, 29, OFF);
 	setIndividualTmpParameters(10, 100, 126, OFF);
 	setIndividualTmpParameters(11, 100, 122, ON);
-	showAllTmpParameters();
+	showAllTmpParameters(ON);
 	
 	// Transmit param through uart
 	// ~TESTING: 
@@ -172,7 +173,8 @@ int main(void)
   {
 		getSelectedTemperatures(connectedTmpNums, kTmpBufSize);
 		handlerAlertIT(connectedTmpNums, kTmpBufSize);
-		handlerUsartRxIT(ON);
+		//handlerUsartRxIT(ON);
+		inputCommandWizard();
 
     /* USER CODE END WHILE */
 

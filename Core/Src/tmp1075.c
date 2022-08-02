@@ -28,6 +28,9 @@ uint8_t *connectedTmpNums = connectedTmpNumsDefault;
 // Address which sends to over tmps if Alert line adge is low with align
 const uint16_t alertResponseAddrWithAlign = ALERT_RESPONSE_ADDR << 1;
 
+// Variable for turn on and turn off csv mod
+uint8_t csvMod = ON;
+
 //====================TODO:============================ 
 // add the selected methods for show and set temperature
 
@@ -175,6 +178,17 @@ void initIndividualTmpAlertLimits(uint8_t nTmpr)
 }
 
 
+void initSelectedTmpAlertLimits(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff)
+{
+	uint8_t nTmpr = 0;
+	for (uint8_t conNum = 0; conNum < sizeTmpNumsBuff; conNum++)
+	{
+		nTmpr = connectedTmpNums[conNum];
+		initIndividualTmpAlertLimits(nTmpr);
+	}
+}
+
+
 void initIndividualTmpAlertIT(uint8_t nTmpr)
 {
 	char message[MESSAGE_LENGTH] = {0};
@@ -317,6 +331,8 @@ float getIndividualTemperature(uint8_t nTmpr)
 
 void getSelectedTemperatures(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 {	
+	char format[MESSAGE_LENGTH] = {0};
+
 	// If Alert interrupt is occured, temperature receiving is blocked 
 	if (!interruptAlertOccuredFl)
 	{
@@ -329,14 +345,24 @@ void getSelectedTemperatures(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 			char tempMessage[MESSAGE_LENGTH] = { 0 };
 			char endMessage[2] = "\n"; //For putty "\r"
 
+			if (csvMod == ON)
+				strcpy(format, "tmp,%d,%.2f, ");
+	
+			else
+				strcpy(format, "Tmp(%d) = %.2f'C | ");
+			
 			for (uint8_t seqNum = 0; seqNum < sizeTmpNumsBuff; seqNum++)
 			{
 				nTmpr = tmpNums[seqNum];
 				temperature = getIndividualTemperature(nTmpr);
 				
 				// Display on terminal
-				sprintf(tempMessage, "Tmp(%d) = %.2f'C | ", nTmpr, temperature);
+				sprintf(tempMessage, format, nTmpr, temperature);
 				usartTx((uint8_t*)tempMessage, MESSAGE_LENGTH);
+				
+				// Print delimiter between each 6 tmps in string (not working?)
+				if (seqNum > 5)
+					usartTx((uint8_t*)endMessage, MESSAGE_LENGTH);
 			}
 			usartTx((uint8_t*)endMessage, MESSAGE_LENGTH);
 		}
@@ -357,6 +383,16 @@ void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 		uint8_t rxAlertAddr[1] = {0};
 		uint8_t nTmpr = 0;
 		uint8_t alertLevelCrossed = 0;
+		char formatHigh[MESSAGE_LONG_LENGTH] = "Max. temperature(%d'C) exceeded Tmp(%d)\n";
+		char formatLow[MESSAGE_LONG_LENGTH] = "Temperature(<%d) - returned to normal Tmp(%d)\n";
+		
+		if (csvMod == ON)
+		{
+			strcpy(formatHigh, "alrtexceed, %d\n");
+			strcpy(formatLow, "alrtreturn, %d\n");
+		}
+
+		
 		
 		HAL_I2C_Master_Receive(&hi2c1,
 		                       (uint16_t)alertResponseAddrWithAlign,
@@ -386,12 +422,12 @@ void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 		}
 		else if (!alertLevelCrossed)
 		{
-			sprintf(message, "Max. temperature(%d'C) exceeded Tmp(%d)\n", tmpSensor[nTmpr].highTempLevel, nTmpr); // For putty "Max. temperature(%d'C) exceeded Tmp(%d)\r\n\n"
+			sprintf(message, formatHigh, tmpSensor[nTmpr].highTempLevel, nTmpr); // For putty "Max. temperature(%d'C) exceeded Tmp(%d)\r\n\n"
 			usartTx((uint8_t*)message, MESSAGE_LONG_LENGTH);
 		}
 		else if(alertLevelCrossed)
 		{
-			sprintf(message, "Temperature(<%d) - returned to normal Tmp(%d)\n", tmpSensor[nTmpr].lowTempLevel, nTmpr); // For putty "Temperature(<%d) - returned to normal Tmp(%d)\r\n\n"
+			sprintf(message, formatLow, tmpSensor[nTmpr].lowTempLevel, nTmpr); // For putty "Temperature(<%d) - returned to normal Tmp(%d)\r\n\n"
 			usartTx((uint8_t*)message, MESSAGE_LONG_LENGTH);
 		}
 		// Clear the alert interrupt flag 
@@ -405,15 +441,55 @@ void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 
 // This function show parameters of all tmps in a console on the PC connected by
 // UART -> virtual COM
-void showAllTmpParameters()
+void showAllTmpParameters(uint8_t headerOn)
 {
 	char message[MESSAGE_LENGTH] = "Num  Addr Tlow('C) Thigh('C)\r\n";
-	usartTx((uint8_t*)message, MESSAGE_LENGTH);
+	char format[MESSAGE_LENGTH] = {0};
+	
+	if (headerOn)
+		usartTx((uint8_t*)message, MESSAGE_LENGTH);
+
+	if (csvMod == ON)
+		strcpy(format, "shw, %d, %x, %d, %d\r\n");
+	
+	else
+		strcpy(format, "%3d %5x %8d %9d\r\n");
 
 	// Filling tmpSensor structures
 	for (uint8_t nTmp = 0; nTmp < NUMBER_OF_TMP_SENSORS; nTmp++)
 	{
-		sprintf(message, "%3d %5x %8d %9d\r\n",
+		sprintf(message, format,
+						nTmp,
+						tmpSensor[nTmp].tmpAddrWithAlign,
+						tmpSensor[nTmp].lowTempLevel,
+						tmpSensor[nTmp].highTempLevel);
+		usartTx((uint8_t*)message, MESSAGE_LENGTH);
+	}
+}
+
+
+// 
+void showSelectedTmpParameters(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff, uint8_t headerOn)
+{
+	char message[MESSAGE_LENGTH] = "Num  Addr Tlow('C) Thigh('C)\r\n";
+	char format[MESSAGE_LENGTH] = {0};
+	
+	if (headerOn)
+		usartTx((uint8_t*)message, MESSAGE_LENGTH);
+
+	if (csvMod == ON)
+		strcpy(format, "shw, %d, %x, %d, %d\r\n");
+	
+	else
+		strcpy(format, "%3d %5x %8d %9d\r\n");
+	
+	
+	// Filling tmpSensor structures
+	uint8_t nTmp = 0;
+	for (uint8_t seqNum = 0; seqNum < sizeTmpNumsBuff; seqNum++)
+	{
+		nTmp = tmpNums[seqNum];
+		sprintf(message, format,
 						nTmp,
 						tmpSensor[nTmp].tmpAddrWithAlign,
 						tmpSensor[nTmp].lowTempLevel,
@@ -428,16 +504,25 @@ void showAllTmpParameters()
 void showIndividualTmpParameters(uint8_t nTmpr, uint8_t headerOn)
 {
 	char message[MESSAGE_LENGTH] = "Num  Addr Tlow('C) Thigh('C)\r\n";
+	char format[MESSAGE_LENGTH] = {0};
+	
 	if (headerOn)
 		usartTx((uint8_t*)message, MESSAGE_LENGTH);
 
-		sprintf(message, "%3d %5x %8d %9d\r\n",
-						nTmpr,
-						tmpSensor[nTmpr].tmpAddrWithAlign,
-						tmpSensor[nTmpr].lowTempLevel,
-						tmpSensor[nTmpr].highTempLevel);
-		usartTx((uint8_t*)message, MESSAGE_LENGTH);
+	if (csvMod == ON)
+		strcpy(format, "shw, %d, %x, %d, %d\r\n");
+	
+	else
+		strcpy(format, "%3d %5x %8d %9d\r\n");
+	
+	sprintf(message, format,
+					nTmpr,
+					tmpSensor[nTmpr].tmpAddrWithAlign,
+					tmpSensor[nTmpr].lowTempLevel,
+					tmpSensor[nTmpr].highTempLevel);
+	usartTx((uint8_t*)message, MESSAGE_LENGTH);
 }
+
 
 
 void setAllDefaultTmpParameters(uint8_t lowTempLevel,
@@ -445,7 +530,7 @@ void setAllDefaultTmpParameters(uint8_t lowTempLevel,
                                 uint8_t isPrint)
 {
 	char message[MESSAGE_LENGTH] = {0};
-	if (isPrint)
+	if (isPrint && csvMod == OFF)
 	{
 		sprintf(message, "Num  Addr Tlow('C) Thigh('C)\r\n");
 		usartTx((uint8_t*)message, MESSAGE_LENGTH);
@@ -461,6 +546,34 @@ void setAllDefaultTmpParameters(uint8_t lowTempLevel,
 			showIndividualTmpParameters(nTmp, OFF);
 	}
 }
+
+
+void setSelectedTmpParameters(uint8_t lowTempLevel,
+                              uint8_t highTempLevel,
+															uint8_t *tmpNums,
+															uint8_t sizeTmpNumsBuff,
+                              uint8_t isPrint)
+{
+	char message[MESSAGE_LENGTH] = {0};
+	if (isPrint)
+	{
+		sprintf(message, "Num  Addr Tlow('C) Thigh('C)\r\n");
+		usartTx((uint8_t*)message, MESSAGE_LENGTH);
+	}
+	// Filling tmpSensor structures
+	uint8_t nTmp = 0;
+	for (uint8_t seqNum = 0; seqNum < sizeTmpNumsBuff; seqNum++)
+	{
+		nTmp = tmpNums[seqNum];
+		tmpSensor[nTmp].tmpAddrWithAlign = ((1 << 6) + nTmp) << 1;
+		tmpSensor[nTmp].lowTempLevel = DEFAULT_TLOW;
+		tmpSensor[nTmp].highTempLevel = DEFAULT_THIGH;
+
+		if (isPrint)
+			showIndividualTmpParameters(nTmp, OFF);
+	}
+}
+
 
 
 // This function set individual parameters of tmp and
