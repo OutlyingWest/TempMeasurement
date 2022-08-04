@@ -39,5 +39,3 @@ signalgen\uart_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim.h
 signalgen\uart_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h
 signalgen\uart_io.o: ../Core/Inc/vars_it.h
 signalgen\uart_io.o: ../Core/Inc/vars_it_typedef.h
-signalgen\uart_io.o: ../Core/Inc/tmp1075.h
-signalgen\uart_io.o: ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_ll_gpio.h

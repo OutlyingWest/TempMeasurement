@@ -7,6 +7,7 @@
 "signalgen\main.o"
 "signalgen\stm32f3xx_it.o"
 "signalgen\stm32f3xx_hal_msp.o"
+"signalgen\string_methods.o"
 "signalgen\stm32f3xx_ll_utils.o"
 "signalgen\stm32f3xx_ll_exti.o"
 "signalgen\stm32f3xx_ll_usb.o"

@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include "uart_io.h"
 #include "tmp1075.h"
 
@@ -22,6 +23,12 @@
 #define ENABLE_CSV_MOD 0
 #define DISABLE_CSV_MOD 1
 
+// For echoExec()
+#define ENABLE_ECHO 0
+#define DISABLE_ECHO 1
+
+// For showParamExec()
+#define OPT_ALL 0
 
 // For strcmp in command finde function
 #define MATCHED 0

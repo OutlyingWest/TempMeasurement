@@ -615,8 +615,14 @@ void setIndividualTmpParameters(uint8_t nTmpr,
 		tmpSensor[nTmpr].highTempLevel = highTempLevel;
 	}
 	
-	if (isPrint)
+	if (isPrint && csvMod == OFF)
+	{
 		showIndividualTmpParameters(nTmpr, ON);
+	}
+	else if(isPrint && csvMod == ON)
+	{
+		showIndividualTmpParameters(nTmpr, OFF);
+	}
 }
 
 

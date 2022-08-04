@@ -3,12 +3,15 @@
 #include <stdio.h>
 #include "vars_it.h"
 #include "global_io.h"
-
+#include "string_methods.h"
 
 
 
 // Flag for enable or disable sending of temperature
 uint8_t tmpsendFl = 1;
+
+// Flag for enable or disable echo mod for commands
+uint8_t isEchoFl = 1;
 
 // Structure of commands
 struct Commands
@@ -22,7 +25,9 @@ struct Commands
 										3, "shwparam", "--all",   "None",
 										4, "tsend",    "-e",      "-d",
 										5, "echo",     "--on",    "--off",
-										6, "ntmps",    "--check", "--set",};
+										6, "setrngl",  "-p",      "None",
+										7, "chtmp",    "--all",   "None",
+			              8, "initmp",   "--all",   "None",};
 
 										
 struct currentCmd
@@ -127,7 +132,7 @@ void inputCommandWizard()
 	if (unblockUsartHandlerFl)
 	{
 		// Echo ON
-		handlerUsartRxIT(ON);
+		handlerUsartRxIT(isEchoFl);
 		
 		// TESTING
 		char messageRx[MESSAGE_LENGTH] = {0};
@@ -184,9 +189,9 @@ void setLvlExec()
 	uint8_t highTempLevel = 0;
 	
 	// TESTING
-	char messageOption[MESSAGE_LENGTH] = {0};
-	sprintf(messageOption, "Opt in setlvl Exec %d\r\n", (int)curCmd.optNum);
-	usartTx((uint8_t*)messageOption, MESSAGE_LENGTH);
+//	char messageOption[MESSAGE_LONG_LENGTH] = {0};
+//	sprintf(messageOption, "Opt in setlvlExec %d\ncurCmd.value: %s\n", (int)curCmd.optNum, curCmd.value);
+//	usartTx((uint8_t*)messageOption, MESSAGE_LONG_LENGTH);
 	// ~TESTING
 	
 	if (curCmd.optNum == PRINT)
@@ -201,7 +206,7 @@ void setLvlExec()
 	{
 		usartTx((uint8_t*)messageOpt, MESSAGE_LENGTH);
 	}
-	valuePtr = strtok ((char*)curCmd.value, sep);
+	valuePtr = strtok((char*)curCmd.value, sep);
 	
 	// Parse value
 	for (int nv = 0; valuePtr != NULL && nv < 3; nv++)
@@ -219,11 +224,18 @@ void setLvlExec()
 		{
 			usartTx((uint8_t*)messageValue, MESSAGE_LENGTH);
 		}
+		valuePtr = strtok(NULL, sep);
 	}
 	// Fill arguments
 	nTmp = valueBuf[0];
 	lowTempLevel = valueBuf[1];
 	highTempLevel = valueBuf[2];
+	
+	// TESTING
+//	char messageLvl[MESSAGE_LONG_LENGTH] = {0};
+//	sprintf(messageLvl, "nTmp = %d\nlowTempLevel = %d\nhighTempLevel = %d\r\n", nTmp, lowTempLevel, highTempLevel);
+//	usartTx((uint8_t*)messageLvl, MESSAGE_LONG_LENGTH);
+	// ~TESTING
 	
 	// Set limits in tmp structure
 	setIndividualTmpParameters(nTmp,
@@ -238,7 +250,38 @@ void setLvlExec()
 
 //
 void showParamExec()
-{}
+{
+	char messageOpt[MESSAGE_LENGTH] = "Err: undefined option\r\n";
+	char messageValue[MESSAGE_LENGTH] = "Err: incorrect value\r\n";
+	uint8_t headerFl = 1;
+
+
+	if (csvMod)
+		headerFl = 0;
+
+	if (curCmd.optNum == OPT_ALL)
+	{
+		showAllTmpParameters(headerFl);
+	}
+	else if (curCmd.optNum == NONE)
+	{
+		uint8_t tmpNumbers[NUMBER_OF_TMP_SENSORS] = { 0 };
+		uint8_t sequeTmpSize = 0;
+		uint8_t errFl = 0;
+
+		
+		errFl = rangedStrParser((uint8_t*)curCmd.value, tmpNumbers, &sequeTmpSize);
+		if (errFl)
+		{
+			usartTx((uint8_t*)messageValue, MESSAGE_LENGTH);
+		}
+		showSelectedTmpParameters(tmpNumbers, sequeTmpSize, headerFl);
+	}
+	else
+	{
+		usartTx((uint8_t*)messageOpt, MESSAGE_LENGTH);
+	}
+}
 	
 
 //
@@ -263,7 +306,22 @@ void tmpSendExec()
 
 //
 void echoExec()
-{}
+{
+	char messageOpt[MESSAGE_LENGTH] = "Err: undefined option\r\n";
+	
+	if (curCmd.optNum == ENABLE_ECHO)
+	{
+		isEchoFl = 1;
+	}
+	else if (curCmd.optNum == DISABLE_ECHO)
+	{
+		isEchoFl = 0;
+	}
+	else
+	{
+		usartTx((uint8_t*)messageOpt, MESSAGE_LENGTH);
+	}
+}
 	
 
 //

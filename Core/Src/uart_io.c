@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include "uart_io.h"
 #include "vars_it.h"
-// Temporary
-#include "tmp1075.h"
+
+
 
 #define WAIT_USART_RX_TIME 10
 
