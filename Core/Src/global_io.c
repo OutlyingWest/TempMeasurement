@@ -25,9 +25,10 @@ struct Commands
 										3, "shwparam", "--all",   "None",
 										4, "tsend",    "-e",      "-d",
 										5, "echo",     "--on",    "--off",
-										6, "setrngl",  "-p",      "None",
-										7, "chtmp",    "--all",   "None",
-			              8, "initmp",   "--all",   "None",};
+										6, "setrng",   "-p",      "None",
+										7, "tchck",    "--all",   "None",
+			              8, "tinit",    "--all",   "None",
+									  9, "disp",     "--all",   "None",};
 
 										
 struct currentCmd
@@ -49,7 +50,7 @@ void inputCommandFinder(uint8_t *rxUsartBuff, uint8_t sizeBuff)
 	char sep[4] = " \r\n";
 	char *rxPtr = (char*)rxUsartBuff;
 	uint8_t matchCmdFl = 1;
-	char messageErrCmd[MESSAGE_LENGTH] = "Err: undefined command\r\n";
+	char messageErrCmd[MESSAGE_LENGTH] = "Error: undefined command\r\n";
 	
 	rxPtr = strtok ((char*)rxUsartBuff, sep);
 
@@ -152,7 +153,7 @@ void inputCommandWizard()
 //
 void cswExec()
 {
-	char messageOpt[MESSAGE_LENGTH] = "Err: undefined option\r\n";
+	char messageOpt[MESSAGE_LENGTH] = "Error: undefined option\r\n";
 	
 	if (curCmd.optNum == ENABLE_CSV_MOD)
 	{
@@ -178,8 +179,8 @@ void pwrExec()
 void setLvlExec()
 {
 	uint8_t isPrint = 0;
-	char messageOpt[MESSAGE_LENGTH] = "Err: undefined option\r\n";
-	char messageValue[MESSAGE_LENGTH] = "Err: incorrect value\r\n";
+	char messageOpt[MESSAGE_LENGTH] = "Error: undefined option\r\n";
+	char messageValue[MESSAGE_LENGTH] = "Error: incorrect value\r\n";
 	char sep[2] = ",";
 	char *valuePtr;
 	uint8_t valueBuf[3] = {0};
@@ -251,8 +252,9 @@ void setLvlExec()
 //
 void showParamExec()
 {
-	char messageOpt[MESSAGE_LENGTH] = "Err: undefined option\r\n";
-	char messageValue[MESSAGE_LENGTH] = "Err: incorrect value\r\n";
+	char messageOpt[MESSAGE_LENGTH] = "Error: undefined option\r\n";
+	char messageValue[MESSAGE_LENGTH] = "Error: incorrect value\r\n";
+	char messageValueRange[MESSAGE_LENGTH] = "Error: out of range\r\n";
 	uint8_t headerFl = 1;
 
 
@@ -275,7 +277,26 @@ void showParamExec()
 		{
 			usartTx((uint8_t*)messageValue, MESSAGE_LENGTH);
 		}
-		showSelectedTmpParameters(tmpNumbers, sequeTmpSize, headerFl);
+		else
+		{
+			// Check out of range
+			for (uint8_t tnum = 0; tnum < sequeTmpSize; tnum++)
+			{
+				if (tmpNumbers[tnum] > NUMBER_OF_TMP_SENSORS)
+				{
+					errFl = 1;
+				}
+			}
+			// If errors not finded - show selected parameters
+			if (sequeTmpSize <= NUMBER_OF_TMP_SENSORS && !errFl)
+			{	
+				showSelectedTmpParameters(tmpNumbers, sequeTmpSize, headerFl);
+			}
+			else
+			{
+				usartTx((uint8_t*)messageValueRange, MESSAGE_LENGTH);
+			}
+		}
 	}
 	else
 	{
@@ -287,7 +308,7 @@ void showParamExec()
 //
 void tmpSendExec()
 {
-	char messageOpt[MESSAGE_LENGTH] = "Err: undefined option\r\n";
+	char messageOpt[MESSAGE_LENGTH] = "Error: undefined option\r\n";
 	
 	if (curCmd.optNum == ENABLE_TMP_OUT)
 	{
@@ -307,7 +328,7 @@ void tmpSendExec()
 //
 void echoExec()
 {
-	char messageOpt[MESSAGE_LENGTH] = "Err: undefined option\r\n";
+	char messageOpt[MESSAGE_LENGTH] = "Error: undefined option\r\n";
 	
 	if (curCmd.optNum == ENABLE_ECHO)
 	{
@@ -346,7 +367,7 @@ void tempOutput()
 {
 	if (tmpsendFl)
 	{
-		getSelectedTemperatures(connectedTmpNums, kTmpBufSize);
+		getSelectedTemperatures(connectedTmpNums, tmpBufSize);
 	}
 }
 

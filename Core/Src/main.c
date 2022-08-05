@@ -156,10 +156,10 @@ int main(void)
 	
 	
 	// Init Alerts in tmp1075
-	initAlertSelectedTmps(connectedTmpNums, kTmpBufSize);
+	initAlertSelectedTmps(connectedTmpNums, tmpBufSize);
 	
 	// Set number of faults for crossing the high level limit of temperature
-	initNumFaultsSelectedTmps(connectedTmpNums, kTmpBufSize);
+	initNumFaultsSelectedTmps(connectedTmpNums, tmpBufSize);
 	
 	//Init the USART IT for event of filling data register
 	LL_USART_EnableIT_RXNE(USART3);
@@ -172,7 +172,7 @@ int main(void)
   while (1)
   {
 		tempOutput();
-		handlerAlertIT(connectedTmpNums, kTmpBufSize);
+		handlerAlertIT(connectedTmpNums, tmpBufSize);
 		inputCommandWizard();
 
     /* USER CODE END WHILE */

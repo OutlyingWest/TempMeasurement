@@ -55,7 +55,9 @@
 #define DEFAULT_TLOW 28
 #define DEFAULT_THIGH 28
 
+// Macro for default tmp set 
 #define NUMBER_OF_TMP_SENSORS 32
+#define DEFAULT_BUF 0
 
 // Display modes
 #define CSV_MOD_ON 1
@@ -76,8 +78,14 @@ extern uint8_t rxBufferI2C[];
 // Tx I2C Buffer 
 extern uint8_t txBufferI2C[];
 
+// Size of buffer of connected tmps by default
+extern const uint8_t kTmpBufSizeDef;
+
+// Buffer of connected tmps by default
+extern uint8_t connectedTmpNumsDefault[];
+
 // Size of buffer of connected tmps
-extern const uint8_t kTmpBufSize;
+extern uint8_t tmpBufSize;
 
 // Buffer of connected tmps
 extern uint8_t *connectedTmpNums;
@@ -87,6 +95,9 @@ extern const uint16_t alertResponseAddrWithAlign;
 
 // Variable for turn on and turn off csv mod
 extern uint8_t csvMod;
+
+// Variable for set number of tmp measures in one string
+extern uint8_t dispInStr;
 
 // Function prototypes
 

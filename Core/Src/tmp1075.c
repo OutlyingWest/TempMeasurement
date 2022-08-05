@@ -18,11 +18,13 @@ uint8_t rxTmpBufferI2C[SIZE_TMP_RX_DATA_BUF] = {0};
 // Tx I2C Buffer 
 uint8_t txTmpBufferI2C[SIZE_TMP_TX_DATA_BUF] = {0};
 
-// Buffer of connected tmps
-const uint8_t kTmpBufSize = 3;
-uint8_t connectedTmpNumsDefault[kTmpBufSize] = {0, 1, 8};
+// Buffer of connected tmps by default
+const uint8_t kTmpBufSizeDef = 6;
+uint8_t connectedTmpNumsDefault[kTmpBufSizeDef] = {0, 1, 8, 10, 11, 12};  // {0, 1, 8};
 
 // Buffer of connected tmps
+uint8_t tmpBufSize = kTmpBufSizeDef;
+uint8_t connectedTmpNumsBuff[NUMBER_OF_TMP_SENSORS];
 uint8_t *connectedTmpNums = connectedTmpNumsDefault;
 
 // Address which sends to over tmps if Alert line adge is low with align
@@ -31,11 +33,8 @@ const uint16_t alertResponseAddrWithAlign = ALERT_RESPONSE_ADDR << 1;
 // Variable for turn on and turn off csv mod
 uint8_t csvMod = OFF;
 
-//====================TODO:============================ 
-// add the selected methods for show and set temperature
-
-
-
+// Variable for set number of tmp measures in one string
+uint8_t dispInStr = kTmpBufSizeDef;
 
 // Structure of data for each tmps
 typedef struct
@@ -242,7 +241,7 @@ void initIndividualTmpNumFaults(uint8_t nTmpr, uint8_t numOfFaults)
 	// Save state in regCFGR field  of own tmp sensor
 	tmpSensor[nTmpr].regCFGR |= txBuf[1];
 	
-	sprintf(message, "nTmpr(%d) Number of faults set to %d\r\n", nTmpr, numOfFaults);
+	sprintf(message, "nTmpr(%02d) Number of faults set to %d\r\n", nTmpr, numOfFaults);
 	aTransmitI2C(hi2c1,
 	             (uint16_t)tmpSensor[nTmpr].tmpAddrWithAlign,
 	             (uint8_t*)txBuf,
@@ -343,15 +342,17 @@ void getSelectedTemperatures(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 			uint8_t nTmpr = 0;
 			float temperature = 0;
 			char tempMessage[MESSAGE_LENGTH] = { 0 };
-			char endMessage[2] = "\n"; //For putty "\r"
+			char endMessage[3] = "\r\n"; //For putty "\r"
+			char endSendMessage[4] = "\n"; //For putty "\r"
+			uint8_t dispCnt = 0;
 
 			if (csvMod == ON)
 				strcpy(format, "tmp,%d,%.2f, ");
 	
 			else
-				strcpy(format, "Tmp(%d) = %.2f'C | ");
+				strcpy(format, "Tmp(%02d) = %.2f'C | ");
 			
-			for (uint8_t seqNum = 0; seqNum < sizeTmpNumsBuff; seqNum++)
+			for (uint8_t seqNum = 0; seqNum < sizeTmpNumsBuff; seqNum++, dispCnt++)
 			{
 				nTmpr = tmpNums[seqNum];
 				temperature = getIndividualTemperature(nTmpr);
@@ -361,10 +362,13 @@ void getSelectedTemperatures(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 				usartTx((uint8_t*)tempMessage, MESSAGE_LENGTH);
 				
 				// Print delimiter between each 6 tmps in string (not working?)
-				if (seqNum > 5)
+				if (dispCnt >= dispInStr)
+				{
 					usartTx((uint8_t*)endMessage, MESSAGE_LENGTH);
+					dispCnt = 0;
+				}
 			}
-			usartTx((uint8_t*)endMessage, MESSAGE_LENGTH);
+			usartTx((uint8_t*)endSendMessage, MESSAGE_LENGTH);
 		}
 	}
 }
@@ -388,8 +392,8 @@ void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 		
 		if (csvMod == ON)
 		{
-			strcpy(formatHigh, "alrtexceed, %d\n");
-			strcpy(formatLow, "alrtreturn, %d\n");
+			strcpy(formatHigh, "alert exd, %d\n");
+			strcpy(formatLow, "alert ret., %d\n");
 		}
 
 		
@@ -456,7 +460,7 @@ void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff)
 // UART -> virtual COM
 void showAllTmpParameters(uint8_t headerOn)
 {
-	char message[MESSAGE_LENGTH] = "Num  Addr Tlow('C) Thigh('C)\r\n";
+	char message[MESSAGE_LENGTH] = "Num Addr Tlow('C) Thigh('C)\r\n";
 	char format[MESSAGE_LENGTH] = {0};
 	
 	if (headerOn)
@@ -466,7 +470,7 @@ void showAllTmpParameters(uint8_t headerOn)
 		strcpy(format, "shw, %d, %x, %d, %d\r\n");
 	
 	else
-		strcpy(format, "%3d %5x %8d %9d\r\n");
+		strcpy(format, "%3d %4x %8d %9d\r\n");
 
 	// Filling tmpSensor structures
 	for (uint8_t nTmp = 0; nTmp < NUMBER_OF_TMP_SENSORS; nTmp++)
@@ -484,7 +488,7 @@ void showAllTmpParameters(uint8_t headerOn)
 // 
 void showSelectedTmpParameters(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff, uint8_t headerOn)
 {
-	char message[MESSAGE_LENGTH] = "Num  Addr Tlow('C) Thigh('C)\r\n";
+	char message[MESSAGE_LENGTH] = "Num Addr Tlow('C) Thigh('C)\r\n";
 	char format[MESSAGE_LENGTH] = {0};
 	
 	if (headerOn)
@@ -516,7 +520,7 @@ void showSelectedTmpParameters(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff, uint8_
 // UART -> virtual COM
 void showIndividualTmpParameters(uint8_t nTmpr, uint8_t headerOn)
 {
-	char message[MESSAGE_LENGTH] = "Num  Addr Tlow('C) Thigh('C)\r\n";
+	char message[MESSAGE_LENGTH] = "Num Addr Tlow('C) Thigh('C)\r\n";
 	char format[MESSAGE_LENGTH] = {0};
 	
 	if (headerOn)
@@ -526,7 +530,7 @@ void showIndividualTmpParameters(uint8_t nTmpr, uint8_t headerOn)
 		strcpy(format, "shw, %d, %x, %d, %d\r\n");
 	
 	else
-		strcpy(format, "%3d %5x %8d %9d\r\n");
+		strcpy(format, "%3d %4x %8d %9d\r\n");
 	
 	sprintf(message, format,
 					nTmpr,
@@ -545,7 +549,7 @@ void setAllDefaultTmpParameters(uint8_t lowTempLevel,
 	char message[MESSAGE_LENGTH] = {0};
 	if (isPrint && csvMod == OFF)
 	{
-		sprintf(message, "Num  Addr Tlow('C) Thigh('C)\r\n");
+		sprintf(message, "Num Addr Tlow('C) Thigh('C)\r\n");
 		usartTx((uint8_t*)message, MESSAGE_LENGTH);
 	}
 	// Filling tmpSensor structures
@@ -635,6 +639,23 @@ void initAlertSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff)
 		initIndividualTmpAlertIT(nTmpr);
 		initIndividualTmpAlertLimits(nTmpr);
 	}
+}
+
+
+// Link the pointer to tmp numbers refer by default to "connectedTmpNumsDefault" at starting
+// and a pointer to the new buffer of tmp numbers.
+// Also set a size of the new buffer 
+void setTmpNums(uint8_t *tmpNums, uint8_t tmpBufferSize)
+{
+		tmpBufSize = tmpBufferSize;
+		connectedTmpNums = tmpNums;
+}
+
+
+void resetByDefaultTmpNums()
+{
+		tmpBufSize = kTmpBufSizeDef;
+		connectedTmpNums = connectedTmpNumsDefault;
 }
 
 
