@@ -63,6 +63,7 @@ void setLvlExec(void);
 void showParamExec(void);
 void tmpSendExec(void);
 void echoExec(void);
+void tinitExec(void);
 void errorCmdExec(void);	
 
 // Function takes pointer to the structure(sIO) which contanes the input and output parameters and settings

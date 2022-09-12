@@ -10,6 +10,7 @@
       <TargetName>signalGen</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -137,7 +138,7 @@
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2V8M.DLL</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -406,6 +407,31 @@
               <FileName>stm32f3xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f3xx_hal_msp.c</FilePath>
+            </File>
+            <File>
+              <FileName>global_io.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\global_io.c</FilePath>
+            </File>
+            <File>
+              <FileName>pulsegen.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\pulsegen.c</FilePath>
+            </File>
+            <File>
+              <FileName>string_methods.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\string_methods.c</FilePath>
+            </File>
+            <File>
+              <FileName>tmp1075.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\tmp1075.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart_io.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\uart_io.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -88,6 +88,9 @@ extern uint8_t connectedTmpNumsDefault[];
 extern uint8_t tmpBufSize;
 
 // Buffer of connected tmps
+extern uint8_t connectedTmpNumsBuff[];
+
+// Global pointer to buffer of connected tmps
 extern uint8_t *connectedTmpNums;
 
 // Address which sends to over tmps if Alert line adge is low
@@ -112,7 +115,7 @@ void initSelectedTmpAlertLimits(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBu
 void initAlertSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff);
 
 // Set number of faults when alert level is crossed
-void initNumFaultsSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff);
+void initNumFaultsSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff, uint8_t nFaults);
 
 // Function which apply make some tests of working another code blocks
 void tugglePinTest(const char* const led);
@@ -120,6 +123,9 @@ void tugglePinTest(const char* const led);
 // Alert interrupt handler - invoke when interrupt is occured 
 void handlerAlertIT(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff);
 
+
+void fillConnectedTmpBufferByDefault(void);
+	
 // Show parameters of tmp sensors on PC
 void showAllTmpParameters(uint8_t headerOn);
 void showSelectedTmpParameters(uint8_t *tmpNums, uint8_t sizeTmpNumsBuff, uint8_t headerOn);

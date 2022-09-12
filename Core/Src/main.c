@@ -154,12 +154,13 @@ int main(void)
 	// Transmit param through uart
 	// ~TESTING: 
 	
+	fillConnectedTmpBufferByDefault();
 	
 	// Init Alerts in tmp1075
 	initAlertSelectedTmps(connectedTmpNums, tmpBufSize);
 	
 	// Set number of faults for crossing the high level limit of temperature
-	initNumFaultsSelectedTmps(connectedTmpNums, tmpBufSize);
+	initNumFaultsSelectedTmps(connectedTmpNums, tmpBufSize, 4);
 	
 	//Init the USART IT for event of filling data register
 	LL_USART_EnableIT_RXNE(USART3);

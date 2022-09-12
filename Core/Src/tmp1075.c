@@ -19,12 +19,16 @@ uint8_t rxTmpBufferI2C[SIZE_TMP_RX_DATA_BUF] = {0};
 uint8_t txTmpBufferI2C[SIZE_TMP_TX_DATA_BUF] = {0};
 
 // Buffer of connected tmps by default
-const uint8_t kTmpBufSizeDef = 6;
-uint8_t connectedTmpNumsDefault[kTmpBufSizeDef] = {0, 1, 8, 10, 11, 12};  // {0, 1, 8};
+const uint8_t kTmpBufSizeDef = 2;
+uint8_t connectedTmpNumsDefault[kTmpBufSizeDef] = {2, 3};  // 0, 1, 8, 10, 11, 12
+
+// Size of connected tmps buffer 
+uint8_t tmpBufSize = kTmpBufSizeDef;
 
 // Buffer of connected tmps
-uint8_t tmpBufSize = kTmpBufSizeDef;
 uint8_t connectedTmpNumsBuff[NUMBER_OF_TMP_SENSORS];
+
+// Global pointer to buffer of connected tmps
 uint8_t *connectedTmpNums = connectedTmpNumsDefault;
 
 // Address which sends to over tmps if Alert line adge is low with align
@@ -34,7 +38,7 @@ const uint16_t alertResponseAddrWithAlign = ALERT_RESPONSE_ADDR << 1;
 uint8_t csvMod = OFF;
 
 // Variable for set number of tmp measures in one string
-uint8_t dispInStr = kTmpBufSizeDef;
+uint8_t dispInStr = 6;
 
 // Structure of data for each tmps
 typedef struct
@@ -151,6 +155,15 @@ void aTransmitI2C(I2C_HandleTypeDef hi, uint16_t tmpAddr, uint8_t *aTxBuffer, ui
 }
 
 
+void fillConnectedTmpBufferByDefault(void)
+{
+	for (uint8_t ntmp = 0; ntmp < kTmpBufSizeDef; ntmp++)
+	{
+		connectedTmpNumsBuff[ntmp] = connectedTmpNumsDefault[ntmp];
+	}
+}
+
+
 void initIndividualTmpAlertLimits(uint8_t nTmpr)
 {
 	uint8_t txBuf[2] = {0};    // Tx I2C Buffer 
@@ -251,15 +264,15 @@ void initIndividualTmpNumFaults(uint8_t nTmpr, uint8_t numOfFaults)
 }
 
 
-void initNumFaultsSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff)
+void initNumFaultsSelectedTmps(uint8_t *connectedTmpNums, uint8_t sizeTmpNumsBuff, uint8_t nFaults)
 {
 	uint8_t nTmpr = 0;
 	for (uint8_t conNum = 0; conNum < sizeTmpNumsBuff; conNum++)
 	{
 		nTmpr = connectedTmpNums[conNum];
 		
-		// Num of faults set to 3
-		initIndividualTmpNumFaults(nTmpr, 4);
+		// Num of faults set to 4
+		initIndividualTmpNumFaults(nTmpr, nFaults);
 	}
 }
 

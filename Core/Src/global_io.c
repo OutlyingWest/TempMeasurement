@@ -120,6 +120,10 @@ void inputCommandExecuter()
 	{
 		echoExec();
 	}
+	else if (curCmd.code == cmd[8].code)
+	{
+		tinitExec();
+	}
 	else
 	{
 		errorCmdExec();
@@ -188,12 +192,7 @@ void setLvlExec()
 	uint8_t nTmp = 0;
 	uint8_t lowTempLevel = 0;
 	uint8_t highTempLevel = 0;
-	
-	// TESTING
-//	char messageOption[MESSAGE_LONG_LENGTH] = {0};
-//	sprintf(messageOption, "Opt in setlvlExec %d\ncurCmd.value: %s\n", (int)curCmd.optNum, curCmd.value);
-//	usartTx((uint8_t*)messageOption, MESSAGE_LONG_LENGTH);
-	// ~TESTING
+
 	
 	if (curCmd.optNum == PRINT)
 	{
@@ -212,7 +211,7 @@ void setLvlExec()
 	// Parse value
 	for (int nv = 0; valuePtr != NULL && nv < 3; nv++)
 	{
-		if (MATCHED ==strcmp(valuePtr, "0"))
+		if (MATCHED == strcmp(valuePtr, "0"))
 		{
 			convResult = 0;
 			valueBuf[nv] = convResult;
@@ -231,12 +230,7 @@ void setLvlExec()
 	nTmp = valueBuf[0];
 	lowTempLevel = valueBuf[1];
 	highTempLevel = valueBuf[2];
-	
-	// TESTING
-//	char messageLvl[MESSAGE_LONG_LENGTH] = {0};
-//	sprintf(messageLvl, "nTmp = %d\nlowTempLevel = %d\nhighTempLevel = %d\r\n", nTmp, lowTempLevel, highTempLevel);
-//	usartTx((uint8_t*)messageLvl, MESSAGE_LONG_LENGTH);
-	// ~TESTING
+
 	
 	// Set limits in tmp structure
 	setIndividualTmpParameters(nTmp,
@@ -343,7 +337,95 @@ void echoExec()
 		usartTx((uint8_t*)messageOpt, MESSAGE_LENGTH);
 	}
 }
+
+
+void tinitExec()
+{
+	char messageOpt[MESSAGE_LENGTH] = "Error: undefined option\r\n";
+	char messageValue[MESSAGE_LENGTH] = "Error: incorrect value\r\n";
+	char messageValueRange[MESSAGE_LENGTH] = "Error: out of range\r\n";
+	uint8_t allTmpNumsBuff[NUMBER_OF_TMP_SENSORS] = {0};
+	uint8_t headerFl = 1;
+
+
+	if (csvMod)
+		headerFl = 0;
+
+	if (curCmd.optNum == OPT_ALL)
+	{
+	  for (uint8_t ntmp = 0; ntmp < NUMBER_OF_TMP_SENSORS; ntmp++)
+		{
+			allTmpNumsBuff[ntmp] = ntmp;
+		}
+
+		// Init Alerts in tmp1075
+		initAlertSelectedTmps(allTmpNumsBuff, NUMBER_OF_TMP_SENSORS);
 	
+		// Set number of faults for crossing the high level limit of temperature
+		initNumFaultsSelectedTmps(allTmpNumsBuff, NUMBER_OF_TMP_SENSORS, 4);
+	}
+	else if (curCmd.optNum == NONE)
+	{
+		uint8_t tmpNumbers[NUMBER_OF_TMP_SENSORS] = { 0 };
+		uint8_t sequeTmpSize = 0;
+		uint8_t errFl = 0;
+
+		
+		errFl = rangedStrParser((uint8_t*)curCmd.value, tmpNumbers, &sequeTmpSize);
+		if (errFl)
+		{
+			usartTx((uint8_t*)messageValue, MESSAGE_LENGTH);
+		}
+		else
+		{
+			// Check out of range
+			for (uint8_t tnum = 0; tnum < sequeTmpSize; tnum++)
+			{
+				if (tmpNumbers[tnum] > NUMBER_OF_TMP_SENSORS)
+				{
+					errFl = 1;
+				}
+			}
+			// If errors not finded - show selected parameters
+			if (sequeTmpSize <= NUMBER_OF_TMP_SENSORS && !errFl)
+			{	
+				// Init Alerts in tmp1075
+				initAlertSelectedTmps(tmpNumbers, sequeTmpSize);
+	
+				// Set number of faults for crossing the high level limit of temperature
+				initNumFaultsSelectedTmps(tmpNumbers, sequeTmpSize, 4);
+				
+				// Fill the global tmp nums buffer
+				uint8_t newTmpSize = tmpBufSize + sequeTmpSize;
+				
+				// Numbers which already in tmp nums buffer 
+				uint8_t ntmpReaded = 0;
+				
+				// Numbers readed from command
+				uint8_t ntmpConnected = 0;
+				
+				for (ntmpConnected = tmpBufSize; ntmpConnected < newTmpSize; ntmpConnected++, ntmpReaded++)
+				{
+					connectedTmpNumsBuff[ntmpConnected] = tmpNumbers[ntmpReaded];
+				}
+				
+				// Redefenition of global tmp nums variables 
+				connectedTmpNums = connectedTmpNumsBuff;
+				tmpBufSize = newTmpSize;
+				
+			}
+			else
+			{
+				usartTx((uint8_t*)messageValueRange, MESSAGE_LENGTH);
+			}
+		}
+	}
+	else
+	{
+		usartTx((uint8_t*)messageOpt, MESSAGE_LENGTH);
+	}
+}
+
 
 //
 void errorCmdExec()
@@ -357,11 +439,12 @@ void curCmdStructCleaner()
 	for (uint8_t nv = 0; nv < VAL_SIZE; curCmd.value[nv++] = 0){}
 }
 
+
 void usartRxDataBuffCleaner()
 {
 	for (uint8_t nd = 0; nd < USART_BUFFER_SIZE; sUART3it.rxData[nd++] = '\0'){}
 }
-	
+
 
 void tempOutput()
 {
@@ -370,7 +453,6 @@ void tempOutput()
 		getSelectedTemperatures(connectedTmpNums, tmpBufSize);
 	}
 }
-
 
 	
 // Should count the time in order to avoid the long suspension in reading keyboard
