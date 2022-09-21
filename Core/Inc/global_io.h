@@ -5,7 +5,7 @@
 
 
 // Defines for command structures
-#define S_CMD_SIZE 10
+#define S_CMD_SIZE 11
 #define COMMAND_SIZE 10
 #define OPT_SIZE 10
 #define OPT_NUM 2
@@ -64,7 +64,11 @@ void showParamExec(void);
 void tmpSendExec(void);
 void echoExec(void);
 void tinitExec(void);
+void tdeinitExec(void);
 void errorCmdExec(void);	
+
+// Function to remove values from buffer and shift indexes in according to this
+void removeValues(uint8_t* bufferToResize, uint8_t* sizeOfResBuf, uint8_t* valueBuffer, uint8_t sizeOfValBuf);
 
 // Function takes pointer to the structure(sIO) which contanes the input and output parameters and settings
 void ioData(sIO *psIO);			

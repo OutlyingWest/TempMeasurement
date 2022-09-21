@@ -65,6 +65,9 @@
 #define OFF 0
 #define NO_PRINT 0
 
+// Code of deinit tmp sensor
+#define TMP_DEINIT_CODE 255
+
 // Externs
 
 // Pointer to the HAL pointet to I2C init structure

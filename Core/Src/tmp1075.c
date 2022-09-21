@@ -19,8 +19,8 @@ uint8_t rxTmpBufferI2C[SIZE_TMP_RX_DATA_BUF] = {0};
 uint8_t txTmpBufferI2C[SIZE_TMP_TX_DATA_BUF] = {0};
 
 // Buffer of connected tmps by default
-const uint8_t kTmpBufSizeDef = 2;
-uint8_t connectedTmpNumsDefault[kTmpBufSizeDef] = {2, 3};  // 0, 1, 8, 10, 11, 12
+const uint8_t kTmpBufSizeDef = 6;
+uint8_t connectedTmpNumsDefault[kTmpBufSizeDef] = {5, 6, 7, 14, 15, 16};  // 0, 1, 8, 10, 11, 12
 
 // Size of connected tmps buffer 
 uint8_t tmpBufSize = kTmpBufSizeDef;
